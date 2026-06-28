@@ -583,77 +583,112 @@
             .ctrl-btn { padding: 6px 14px; font-size: 0.8em; min-width: 70px; }
             .info-panel { margin-bottom: 8px; font-size: 0.85em; gap: 12px; }
             .controls-hint { display: none; }
-            .dpad { display: grid; }
+            
+            .dpad { 
+                display: grid; 
+                grid-template-columns: repeat(3, 72px); /* 从60px增大到72px */
+                grid-template-rows: repeat(3, 72px);    /* 从60px增大到72px */
+                gap: 6px;                               /* 间距稍微加大 */
+                margin-top: 8px; 
+            }
+            .dpad-btn { 
+                font-size: 1.8em;                       /* 从1.5em增大到1.8em */
+            }
 
-            /* 俄罗斯方块移动端紧凑布局 */
-            .tetris-wrapper { gap: 6px; }
+            /* 俄罗斯方块移动端紧凑布局 - 放大优化 */
+            .tetris-wrapper { gap: 8px; }
             .tetris-main {
+                flex-direction: column; /* 改为上下布局，让画布占满宽度 */
                 gap: 8px;
                 align-items: center;
             }
             .tetris-canvas {
-                width: 200px !important;
-                height: 400px !important;
+                width: 100% !important;    /* 宽度占满容器 */
+                max-width: 350px !important; /* 限制最大宽度防止变形 */
+                height: auto !important;     /* 高度自适应 */
+                aspect-ratio: 1 / 2;        /* 保持 10:20 的宽高比 */
             }
             .tetris-side {
-                flex-direction: column;
-                gap: 6px;
+                flex-direction: row; /* 改为横向排列 */
+                gap: 12px;
                 min-width: auto;
-                align-items: center;
+                width: 100%;
+                max-width: 350px;
+                justify-content: center;
+                align-items: stretch;
             }
             .next-piece {
-                padding: 6px;
+                padding: 8px;
                 border-radius: 8px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                flex: 1;
             }
             .next-piece h3 {
-                font-size: 0.75em;
+                font-size: 0.8em;
                 margin-bottom: 4px;
             }
             .next-canvas {
-                width: 80px !important;
-                height: 80px !important;
+                width: 60px !important;
+                height: 60px !important;
             }
             .tetris-info {
-                padding: 8px 10px;
-                font-size: 0.8em;
+                padding: 8px 12px;
+                font-size: 0.85em;
                 border-radius: 8px;
+                flex: 1.5;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
             }
-            .tetris-info p { margin: 3px 0; }
+            .tetris-info p { margin: 2px 0; }
 
             .tetris-controls {
                 display: grid;
-                gap: 6px;
-                max-width: 280px;
+                gap: 8px;
+                max-width: 100%; /* 控制区宽度占满 */
+                width: 100%;
                 margin-top: 4px;
             }
             .tetris-btn {
-                padding: 14px 8px;
-                font-size: 1.1em;
+                padding: 16px 8px; /* 增大按钮点击区域 */
+                font-size: 1.2em;  /* 字体放大 */
                 border-radius: 10px;
             }
         }
 
         @media (max-width: 400px) {
             .sudoku-grid { max-width: 100%; }
-            .dpad { grid-template-columns: repeat(3, 52px); grid-template-rows: repeat(3, 52px); }
-            .dpad-btn { font-size: 1.3em; }
+            
+            .dpad { 
+                grid-template-columns: repeat(3, 64px); /* 从52px增大到64px */
+                grid-template-rows: repeat(3, 64px);    /* 从52px增大到64px */
+            }
+            .dpad-btn { 
+                font-size: 1.6em;                       /* 从1.3em增大到1.6em */
+            }
 
             .tetris-canvas {
-                width: 180px !important;
-                height: 360px !important;
+                max-width: 100% !important; /* 极小屏幕继续撑满 */
+            }
+            .tetris-side {
+                max-width: 100%;
             }
             .next-canvas {
-                width: 70px !important;
-                height: 70px !important;
+                width: 50px !important;
+                height: 50px !important;
             }
             .tetris-controls {
-                max-width: 240px;
+                max-width: 100%;
             }
             .tetris-btn {
-                padding: 12px 6px;
-                font-size: 1em;
+                padding: 14px 6px;
+                font-size: 1.1em;
             }
         }
+
     </style>
 </head>
 <body>
@@ -1255,11 +1290,17 @@ let tetrisScore = 0, tetrisLines = 0, tetrisLevel = 1;
 let tetrisGameLoop = null, tetrisPaused = false, tetrisDiff = 'easy';
 const tetrisDiffConfig = { easy: 800, medium: 500, hard: 300, insane: 150 };
 
-// 动态计算方块大小
+// 动态计算方块大小，适配移动端放大后的Canvas
 function getTetrisBlockSize() {
     const isMobile = window.innerWidth <= 768;
-    return isMobile ? 20 : 30;
+    if (isMobile) {
+        // 获取Canvas实际渲染的CSS宽度并除以列数来计算方块大小
+        const displayWidth = tetrisCanvas.clientWidth || 300;
+        return Math.floor(displayWidth / TETRIS_COLS);
+    }
+    return 30;
 }
+
 function getNextBlockSize() {
     const isMobile = window.innerWidth <= 768;
     return isMobile ? 16 : 25;

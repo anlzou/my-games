@@ -869,8 +869,20 @@
             justify-content: center;
             gap: 20px;
             font-size: 0.95em;
+            margin-bottom: 8px;
         }
         .gomoku-info span { color: #00d4ff; font-weight: bold; }
+
+        /* 新增：胜负统计面板样式 */
+        .gomoku-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 4px;
+            font-size: 0.95em;
+            flex-wrap: wrap;
+        }
+        .gomoku-stats span { color: #ffd700; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -1066,7 +1078,6 @@
             </div>
             <div class="control-panel">
                 <button class="ctrl-btn start-btn" onclick="newGame2048()">新游戏</button>
-                <button class="ctrl-btn reset-btn" onclick="resetGame2048()">重置</button>
             </div>
             <div class="info-panel">
                 <div>🏆 得分: <span id="game2048-score">0</span></div>
@@ -1085,7 +1096,6 @@
             </div>
             <div class="control-panel">
                 <button class="ctrl-btn start-btn" onclick="newGomokuGame()">新游戏</button>
-                <button class="ctrl-btn reset-btn" onclick="resetGomoku()">重置</button>
             </div>
             <div class="gomoku-info">
                 <div>⚫ 黑方: <span id="gomoku-black">玩家</span></div>
@@ -1094,6 +1104,11 @@
             <div class="gomoku-wrapper">
                 <div class="gomoku-board" id="gomoku-board"></div>
                 <div class="controls-hint">点击棋盘落子 | 黑方先手</div>
+                <!-- 新增胜负统计 -->
+                <div class="gomoku-stats" id="gomoku-stats">
+                    <div>⚫ 黑方胜: <span id="gomoku-black-wins">0</span></div>
+                    <div>⚪ 白方胜: <span id="gomoku-white-wins">0</span></div>
+                </div>
             </div>
         </div>
     </div>
@@ -2215,6 +2230,7 @@ game2048GridEl.addEventListener('touchend', (e) => {
 let gomokuBoard = [], gomokuCurrentPlayer = 'black', gomokuMode = 'pvp';
 let gomokuGameOver = false, gomokuWinner = null;
 const gomokuSize = 15;
+let gomokuStats = { black: 0, white: 0 };
 
 function setGomokuMode(mode) {
     gomokuMode = mode;
@@ -2232,6 +2248,7 @@ function newGomokuGame() {
     renderGomokuBoard();
 }
 
+// 重置按钮已移除，保留函数但不再使用
 function resetGomoku() {
     newGomokuGame();
 }
@@ -2248,7 +2265,6 @@ function renderGomokuBoard() {
             
             if (gomokuBoard[r][c]) {
                 cell.classList.add(gomokuBoard[r][c]);
-                // 标记最后一步
                 if (r === gomokuBoard.lastMove?.r && c === gomokuBoard.lastMove?.c) {
                     cell.classList.add('last-move');
                 }
@@ -2272,6 +2288,8 @@ function handleGomokuClick(r, c) {
     if (checkGomokuWin(r, c, gomokuCurrentPlayer)) {
         gomokuGameOver = true;
         gomokuWinner = gomokuCurrentPlayer;
+        // 更新胜负统计
+        gomokuStats[gomokuCurrentPlayer]++;
         updateGomokuUI();
         showModal('🎉 游戏结束', `${gomokuCurrentPlayer === 'black' ? '黑方' : '白方'}获胜！`, true);
         return;
@@ -2290,18 +2308,15 @@ function handleGomokuClick(r, c) {
 }
 
 function checkGomokuWin(r, c, player) {
-    // 定义所有可能的方向：横向、纵向、两个对角线
     const directions = [
-        [[0, 1], [0, -1]],   // 横向
-        [[1, 0], [-1, 0]],   // 纵向
-        [[1, 1], [-1, -1]],  // 主对角线
-        [[1, -1], [-1, 1]]   // 副对角线
+        [[0, 1], [0, -1]],
+        [[1, 0], [-1, 0]],
+        [[1, 1], [-1, -1]],
+        [[1, -1], [-1, 1]]
     ];
     
     for (const dirPair of directions) {
-        let count = 1;  // 包括当前落子点
-        
-        // 检查正方向
+        let count = 1;
         for (let i = 1; i < 5; i++) {
             const nr = r + dirPair[0][0] * i;
             const nc = c + dirPair[0][1] * i;
@@ -2311,8 +2326,6 @@ function checkGomokuWin(r, c, player) {
                 break;
             }
         }
-        
-        // 检查反方向
         for (let i = 1; i < 5; i++) {
             const nr = r + dirPair[1][0] * i;
             const nc = c + dirPair[1][1] * i;
@@ -2322,59 +2335,158 @@ function checkGomokuWin(r, c, player) {
                 break;
             }
         }
-        
         if (count >= 5) return true;
     }
-    
     return false;
+}
+
+// 评估某空位落子后的棋型得分
+function evaluateGomokuPoint(r, c, player) {
+    let score = 0;
+    const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
+    
+    for (const [dr, dc] of directions) {
+        let count = 1; // 假设落子在此
+        
+        // 正向
+        let forwardEmpty = 0;
+        let forwardBlocked = false;
+        for (let i = 1; i < 5; i++) {
+            const nr = r + dr * i;
+            const nc = c + dc * i;
+            if (nr < 0 || nr >= gomokuSize || nc < 0 || nc >= gomokuSize) {
+                forwardBlocked = true;
+                break;
+            }
+            if (gomokuBoard[nr][nc] === player) {
+                count++;
+            } else if (gomokuBoard[nr][nc] === null) {
+                forwardEmpty = 1;
+                break;
+            } else {
+                forwardBlocked = true;
+                break;
+            }
+        }
+        
+        // 反向
+        let backwardEmpty = 0;
+        let backwardBlocked = false;
+        for (let i = 1; i < 5; i++) {
+            const nr = r - dr * i;
+            const nc = c - dc * i;
+            if (nr < 0 || nr >= gomokuSize || nc < 0 || nc >= gomokuSize) {
+                backwardBlocked = true;
+                break;
+            }
+            if (gomokuBoard[nr][nc] === player) {
+                count++;
+            } else if (gomokuBoard[nr][nc] === null) {
+                backwardEmpty = 1;
+                break;
+            } else {
+                backwardBlocked = true;
+                break;
+            }
+        }
+        
+        let openEnds = (forwardEmpty ? 1 : 0) + (backwardEmpty ? 1 : 0);
+        
+        // 棋型评分
+        if (count >= 5) {
+            score += 100000;
+        } else if (count === 4) {
+            if (openEnds === 2) score += 10000;      // 活四
+            else if (openEnds === 1) score += 5000;   // 冲四
+            else score += 1000;                        // 死四
+        } else if (count === 3) {
+            if (openEnds === 2) score += 1000;        // 活三
+            else if (openEnds === 1) score += 500;    // 眠三
+            else score += 100;
+        } else if (count === 2) {
+            if (openEnds === 2) score += 100;         // 活二
+            else if (openEnds === 1) score += 50;     // 眠二
+            else score += 10;
+        } else if (count === 1) {
+            if (openEnds === 2) score += 10;
+            else score += 5;
+        }
+    }
+    
+    return score;
 }
 
 function makeComputerMove() {
     if (gomokuGameOver) return;
     
-    // 简单AI：寻找最佳落子位置
     let bestScore = -Infinity;
     let bestMove = null;
+    const center = Math.floor(gomokuSize / 2);
     
+    // 空棋盘直接下中心
+    let isEmpty = true;
+    for (let r = 0; r < gomokuSize && isEmpty; r++) {
+        for (let c = 0; c < gomokuSize; c++) {
+            if (gomokuBoard[r][c]) { isEmpty = false; break; }
+        }
+    }
+    if (isEmpty) {
+        makeComputerMoveAt(center, center);
+        return;
+    }
+    
+    // 1. 己方可直接连五获胜
+    for (let r = 0; r < gomokuSize; r++) {
+        for (let c = 0; c < gomokuSize; c++) {
+            if (gomokuBoard[r][c]) continue;
+            if (checkGomokuWin(r, c, 'white')) {
+                makeComputerMoveAt(r, c);
+                return;
+            }
+        }
+    }
+    
+    // 2. 对方即将连五，必须防守
+    for (let r = 0; r < gomokuSize; r++) {
+        for (let c = 0; c < gomokuSize; c++) {
+            if (gomokuBoard[r][c]) continue;
+            if (checkGomokuWin(r, c, 'black')) {
+                makeComputerMoveAt(r, c);
+                return;
+            }
+        }
+    }
+    
+    // 3. 综合评分选最佳点
     for (let r = 0; r < gomokuSize; r++) {
         for (let c = 0; c < gomokuSize; c++) {
             if (gomokuBoard[r][c]) continue;
             
-            // 评估当前位置的分数
-            let score = 0;
-            
-            // 检查是否可以获胜
-            if (checkGomokuWin(r, c, 'white')) {
-                score = 10000;
-            } else {
-                // 评估防守分数
-                if (checkGomokuWin(r, c, 'black')) {
-                    score = 5000;
-                }
-                
-                // 评估进攻分数
-                for (const [dir1, dir2] of [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]]) {
-                    let count = 0;
-                    let i = 1;
-                    while (true) {
-                        const nr = r + dir1 * i;
-                        const nc = c + dir2 * i;
-                        if (nr < 0 || nr >= gomokuSize || nc < 0 || nc >= gomokuSize || gomokuBoard[nr][nc] !== 'white') break;
-                        count++;
-                        i++;
+            // 只评估已有棋子周围2格内的空位（优化性能）
+            let nearPiece = false;
+            for (let dr = -2; dr <= 2 && !nearPiece; dr++) {
+                for (let dc = -2; dc <= 2; dc++) {
+                    const nr = r + dr, nc = c + dc;
+                    if (nr >= 0 && nr < gomokuSize && nc >= 0 && nc < gomokuSize && gomokuBoard[nr][nc]) {
+                        nearPiece = true;
+                        break;
                     }
-                    
-                    if (count >= 2) score += count * 10;
                 }
             }
+            if (!nearPiece) continue;
             
-            // 中心位置加分
-            const center = Math.floor(gomokuSize / 2);
-            const distFromCenter = Math.abs(r - center) + Math.abs(c - center);
-            score += (gomokuSize - distFromCenter) * 2;
+            let attackScore = evaluateGomokuPoint(r, c, 'white');
+            let defenseScore = evaluateGomokuPoint(r, c, 'black');
             
-            // 随机因素
-            score += Math.random() * 5;
+            // 进攻略优先，同时重视防守
+            let score = attackScore * 1.15 + defenseScore;
+            
+            // 中心位置偏好
+            const dist = Math.abs(r - center) + Math.abs(c - center);
+            score += Math.max(0, (gomokuSize - dist)) * 3;
+            
+            // 随机因素打破平局
+            score += Math.random() * 8;
             
             if (score > bestScore) {
                 bestScore = score;
@@ -2384,19 +2496,34 @@ function makeComputerMove() {
     }
     
     if (bestMove) {
-        gomokuBoard[bestMove.r][bestMove.c] = 'white';
-        gomokuBoard.lastMove = bestMove;
-        renderGomokuBoard();
-        
-        if (checkGomokuWin(bestMove.r, bestMove.c, 'white')) {
-            gomokuGameOver = true;
-            gomokuWinner = 'white';
-            updateGomokuUI();
-            showModal('🎉 游戏结束', '电脑获胜！', false);
-        } else {
-            gomokuCurrentPlayer = 'black';
-            updateGomokuUI();
+        makeComputerMoveAt(bestMove.r, bestMove.c);
+    } else {
+        // fallback：找第一个空位
+        for (let r = 0; r < gomokuSize; r++) {
+            for (let c = 0; c < gomokuSize; c++) {
+                if (!gomokuBoard[r][c]) {
+                    makeComputerMoveAt(r, c);
+                    return;
+                }
+            }
         }
+    }
+}
+
+function makeComputerMoveAt(r, c) {
+    gomokuBoard[r][c] = 'white';
+    gomokuBoard.lastMove = { r, c };
+    renderGomokuBoard();
+    
+    if (checkGomokuWin(r, c, 'white')) {
+        gomokuGameOver = true;
+        gomokuWinner = 'white';
+        gomokuStats.white++;
+        updateGomokuUI();
+        showModal('🎉 游戏结束', '白方获胜！', true);
+    } else {
+        gomokuCurrentPlayer = 'black';
+        updateGomokuUI();
     }
 }
 
@@ -2405,6 +2532,11 @@ function updateGomokuUI() {
     const whitePlayer = gomokuMode === 'pvp' ? '玩家2' : '电脑';
     document.getElementById('gomoku-black').textContent = blackPlayer;
     document.getElementById('gomoku-white').textContent = whitePlayer;
+    
+    const blackWinsEl = document.getElementById('gomoku-black-wins');
+    const whiteWinsEl = document.getElementById('gomoku-white-wins');
+    if (blackWinsEl) blackWinsEl.textContent = gomokuStats.black;
+    if (whiteWinsEl) whiteWinsEl.textContent = gomokuStats.white;
 }
 
 

@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>经典游戏合集</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #eee;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(0, 200, 255, 0.5);
+            background: linear-gradient(90deg, #00d4ff, #7b2cbf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+        .game-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .game-btn {
+            padding: 12px 28px;
+            font-size: 1.1em;
+            border: 2px solid #00d4ff;
+            background: rgba(0, 212, 255, 0.1);
+            color: #00d4ff;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        .game-btn:hover, .game-btn.active {
+            background: #00d4ff;
+            color: #1a1a2e;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+            transform: translateY(-2px);
+        }
+        .game-area {
+            display: none;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .game-area.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .difficulty-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .diff-btn {
+            padding: 8px 20px;
+            border: 1px solid #7b2cbf;
+            background: rgba(123, 44, 191, 0.1);
+            color: #c77dff;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .diff-btn:hover, .diff-btn.active {
+            background: #7b2cbf;
+            color: #fff;
+        }
+        .control-panel {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .ctrl-btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .start-btn { background: #28a745; color: white; }
+        .start-btn:hover { background: #218838; }
+        .pause-btn { background: #ffc107; color: #333; }
+        .pause-btn:hover { background: #e0a800; }
+        .reset-btn { background: #dc3545; color: white; }
+        .reset-btn:hover { background: #c82333; }
+        .score-display {
+            text-align: center;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: #ffd700;
+        }
+        /* 数独样式 */
+        .sudoku-grid {
+            display: grid;
+            grid-template-columns: repeat(9, 50px);
+            grid-template-rows: repeat(9, 50px);
+            gap: 1px;
+            background: #333;
+            border: 3px solid #555;
+            margin: 0 auto;
+            width: fit-content;
+        }
+        .sudoku-cell {
+            background: #2a2a4a;
+            border: 1px solid #444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .sudoku-cell:hover { background: #3a3a6a; }
+        .sudoku-cell.fixed { color: #aaa; background: #1a1a3a; }
+        .sudoku-cell.selected { background: #4a4a8a; }
+        .sudoku-cell.error { color: #ff4444; }
+        .sudoku-cell:nth-child(3n) { border-right: 2px solid #555; }
+        .sudoku-cell:nth-child(9n) { border-right: 1px solid #444; }
+        .sudoku-cell:nth-child(n+19):nth-child(-n+27),
+        .sudoku-cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 2px solid #555; }
+        .sudoku-numpad {
+            display: grid;
+            grid-template-columns: repeat(5, 60px);
+            gap: 8px;
+            margin: 20px auto;
+            width: fit-content;
+        }
+        .num-btn {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #00d4ff;
+            background: rgba(0, 212, 255, 0.1);
+            color: #00d4ff;
+            border-radius: 10px;
+            font-size: 1.5em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .num-btn:hover { background: #00d4ff; color: #1a1a2e; }
+        .num-btn.clear { border-color: #dc3545; color: #dc3545; }
+        .num-btn.clear:hover { background: #dc3545; color: white; }
+
+        /* 贪吃蛇样式 */
+        .snake-canvas {
+            display: block;
+            margin: 0 auto;
+            border: 3px solid #00ff88;
+            border-radius: 10px;
+            background: #0a0a1a;
+        }
+        .snake-info {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        .snake-info span { color: #00ff88; }
+        .controls-hint {
+            text-align: center;
+            color: #888;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+
+        /* 俄罗斯方块样式 */
+        .tetris-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        .tetris-canvas {
+            border: 3px solid #ff6b6b;
+            border-radius: 10px;
+            background: #1a0a0a;
+        }
+        .tetris-side {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .next-piece {
+            border: 2px solid #ff6b6b;
+            border-radius: 10px;
+            padding: 10px;
+            background: rgba(255, 107, 107, 0.1);
+        }
+        .next-piece h3 { color: #ff6b6b; margin-bottom: 10px; text-align: center; }
+        .tetris-info {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        .tetris-info p { margin: 8px 0; font-size: 1.1em; }
+        .tetris-info span { color: #ff6b6b; font-weight: bold; }
+
+        /* 扫雷样式 */
+        .minesweeper-grid {
+            display: grid;
+            gap: 2px;
+            margin: 0 auto;
+            width: fit-content;
+            background: #333;
+            padding: 5px;
+            border-radius: 10px;
+        }
+        .mine-cell {
+            width: 35px;
+            height: 35px;
+            background: #4a4a6a;
+            border: none;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.15s;
+            user-select: none;
+        }
+        .mine-cell:hover:not(.revealed):not(.flagged) { background: #5a5a8a; }
+        .mine-cell.revealed { background: #2a2a4a; cursor: default; }
+        .mine-cell.flagged { background: #ff6b6b; color: white; }
+        .mine-cell.mine { background: #dc3545; color: white; }
+        .mine-cell.num-1 { color: #3498db; }
+        .mine-cell.num-2 { color: #2ecc71; }
+        .mine-cell.num-3 { color: #e74c3c; }
+        .mine-cell.num-4 { color: #9b59b6; }
+        .mine-cell.num-5 { color: #e67e22; }
+        .mine-cell.num-6 { color: #1abc9c; }
+        .mine-cell.num-7 { color: #34495e; }
+        .mine-cell.num-8 { color: #7f8c8d; }
+        .mine-info {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        .mine-info span { color: #ff6b6b; }
+        .flag-mode {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .flag-toggle {
+            width: 50px;
+            height: 26px;
+            background: #444;
+            border-radius: 13px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .flag-toggle.active { background: #ff6b6b; }
+        .flag-toggle::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: left 0.3s;
+        }
+        .flag-toggle.active::after { left: 26px; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal.show { display: flex; }
+        .modal-content {
+            background: #1a1a2e;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            border: 2px solid #00d4ff;
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
+        }
+        .modal-content h2 { font-size: 2.5em; margin-bottom: 20px; }
+        .modal-content.win h2 { color: #28a745; }
+        .modal-content.lose h2 { color: #dc3545; }
+        .modal-content p { font-size: 1.3em; margin-bottom: 25px; }
+        .modal-btn {
+            padding: 12px 35px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            background: #00d4ff;
+            color: #1a1a2e;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .modal-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(0, 212, 255, 0.5); }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 2em; }
+            .sudoku-grid { grid-template-columns: repeat(9, 35px); grid-template-rows: repeat(9, 35px); }
+            .sudoku-cell { font-size: 1.1em; }
+            .sudoku-numpad { grid-template-columns: repeat(5, 45px); }
+            .num-btn { width: 45px; height: 45px; font-size: 1.1em; }
+            .mine-cell { width: 28px; height: 28px; font-size: 0.9em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 经典游戏合集</h1>
+        <p class="subtitle">选择你喜欢的游戏，挑战不同难度！</p>
+
+        <div class="game-selector">
+            <button class="game-btn active" onclick="showGame('sudoku')">🧩 数独</button>
+            <button class="game-btn" onclick="showGame('snake')">🐍 贪吃蛇</button>
+            <button class="game-btn" onclick="showGame('tetris')">🟦 俄罗斯方块</button>
+            <button class="game-btn" onclick="showGame('minesweeper')">💣 扫雷</button>
+        </div>
+
+        <!-- 数独 -->
+        <div id="sudoku" class="game-area active">
+            <div class="difficulty-selector">
+                <button class="diff-btn active" onclick="setSudokuDiff('easy')">简单</button>
+                <button class="diff-btn" onclick="setSudokuDiff('medium')">中等</button>
+                <button class="diff-btn" onclick="setSudokuDiff('hard')">困难</button>
+                <button class="diff-btn" onclick="setSudokuDiff('expert')">专家</button>
+            </div>
+            <div class="control-panel">
+                <button class="ctrl-btn start-btn" onclick="newSudoku()">新游戏</button>
+                <button class="ctrl-btn reset-btn" onclick="clearSudoku()">清空</button>
+                <button class="ctrl-btn pause-btn" onclick="checkSudoku()">检查</button>
+            </div>
+            <div class="score-display" id="sudoku-timer">⏱️ 00:00</div>
+            <div class="sudoku-grid" id="sudoku-grid"></div>
+            <div class="sudoku-numpad">
+                <button class="num-btn" onclick="inputNumber(1)">1</button>
+                <button class="num-btn" onclick="inputNumber(2)">2</button>
+                <button class="num-btn" onclick="inputNumber(3)">3</button>
+                <button class="num-btn" onclick="inputNumber(4)">4</button>
+                <button class="num-btn" onclick="inputNumber(5)">5</button>
+                <button class="num-btn" onclick="inputNumber(6)">6</button>
+                <button class="num-btn" onclick="inputNumber(7)">7</button>
+                <button class="num-btn" onclick="inputNumber(8)">8</button>
+                <button class="num-btn" onclick="inputNumber(9)">9</button>
+                <button class="num-btn clear" onclick="inputNumber(0)">✕</button>
+            </div>
+        </div>
+
+        <!-- 贪吃蛇 -->
+        <div id="snake" class="game-area">
+            <div class="difficulty-selector">
+                <button class="diff-btn active" onclick="setSnakeDiff('easy')">简单</button>
+                <button class="diff-btn" onclick="setSnakeDiff('medium')">中等</button>
+                <button class="diff-btn" onclick="setSnakeDiff('hard')">困难</button>
+                <button class="diff-btn" onclick="setSnakeDiff('insane')">疯狂</button>
+            </div>
+            <div class="control-panel">
+                <button class="ctrl-btn start-btn" onclick="startSnake()">开始</button>
+                <button class="ctrl-btn pause-btn" onclick="pauseSnake()">暂停</button>
+                <button class="ctrl-btn reset-btn" onclick="resetSnake()">重置</button>
+            </div>
+            <div class="snake-info">
+                <div>🍎 得分: <span id="snake-score">0</span></div>
+                <div>🏆 最高: <span id="snake-high">0</span></div>
+                <div>📊 长度: <span id="snake-len">1</span></div>
+            </div>
+            <canvas id="snake-canvas" class="snake-canvas" width="400" height="400"></canvas>
+            <div class="controls-hint">使用方向键 ↑↓←→ 或 WASD 控制方向 | 空格键暂停</div>
+        </div>
+
+        <!-- 俄罗斯方块 -->
+        <div id="tetris" class="game-area">
+            <div class="difficulty-selector">
+                <button class="diff-btn active" onclick="setTetrisDiff('easy')">简单</button>
+                <button class="diff-btn" onclick="setTetrisDiff('medium')">中等</button>
+                <button class="diff-btn" onclick="setTetrisDiff('hard')">困难</button>
+                <button class="diff-btn" onclick="setTetrisDiff('insane')">疯狂</button>
+            </div>
+            <div class="control-panel">
+                <button class="ctrl-btn start-btn" onclick="startTetris()">开始</button>
+                <button class="ctrl-btn pause-btn" onclick="pauseTetris()">暂停</button>
+                <button class="ctrl-btn reset-btn" onclick="resetTetris()">重置</button>
+            </div>
+            <div class="tetris-container">
+                <canvas id="tetris-canvas" class="tetris-canvas" width="300" height="600"></canvas>
+                <div class="tetris-side">
+                    <div class="next-piece">
+                        <h3>下一个</h3>
+                        <canvas id="next-canvas" width="120" height="120"></canvas>
+                    </div>
+                    <div class="tetris-info">
+                        <p>🏆 得分: <span id="tetris-score">0</span></p>
+                        <p>📊 行数: <span id="tetris-lines">0</span></p>
+                        <p>🎯 等级: <span id="tetris-level">1</span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="controls-hint">←→ 移动 | ↑ 旋转 | ↓ 加速下落 | 空格键直接落底</div>
+        </div>
+
+        <!-- 扫雷 -->
+        <div id="minesweeper" class="game-area">
+            <div class="difficulty-selector">
+                <button class="diff-btn active" onclick="setMineDiff('easy')">简单 9×9</button>
+                <button class="diff-btn" onclick="setMineDiff('medium')">中等 16×16</button>
+                <button class="diff-btn" onclick="setMineDiff('hard')">困难 16×30</button>
+                <button class="diff-btn" onclick="setMineDiff('custom')">自定义</button>
+            </div>
+            <div class="control-panel">
+                <button class="ctrl-btn start-btn" onclick="newMineGame()">新游戏</button>
+                <button class="ctrl-btn reset-btn" onclick="resetMineGame()">重置</button>
+            </div>
+            <div class="mine-info">
+                <div>💣 雷数: <span id="mine-count">10</span></div>
+                <div>🚩 标记: <span id="flag-count">0</span></div>
+                <div>⏱️ 时间: <span id="mine-timer">0</span>s</div>
+            </div>
+            <div class="flag-mode">
+                <span>🚩 标记模式:</span>
+                <div class="flag-toggle" id="flag-toggle" onclick="toggleFlagMode()"></div>
+                <span id="flag-status">关闭 (右键也可标记)</span>
+            </div>
+            <div class="minesweeper-grid" id="mine-grid"></div>
+        </div>
+    </div>
+
+    <!-- 游戏结束弹窗 -->
+    <div class="modal" id="game-modal">
+        <div class="modal-content" id="modal-content">
+            <h2 id="modal-title"></h2>
+            <p id="modal-msg"></p>
+            <button class="modal-btn" onclick="closeModal()">再来一局</button>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 通用功能 ====================
+        let currentGame = 'sudoku';
+        let timerInterval = null;
+        let seconds = 0;
+
+        function showGame(game) {
+            document.querySelectorAll('.game-area').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.game-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(game).classList.add('active');
+            event.target.classList.add('active');
+            currentGame = game;
+            stopTimer();
+        }
+
+        function startTimer(displayId) {
+            stopTimer();
+            seconds = 0;
+            timerInterval = setInterval(() => {
+                seconds++;
+                const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+                const secs = (seconds % 60).toString().padStart(2, '0');
+                const el = document.getElementById(displayId);
+                if (el) el.textContent = `⏱️ ${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function showModal(title, msg, isWin) {
+            const modal = document.getElementById('game-modal');
+            const content = document.getElementById('modal-content');
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-msg').textContent = msg;
+            content.className = 'modal-content ' + (isWin ? 'win' : 'lose');
+            modal.classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('game-modal').classList.remove('show');
+            if (currentGame === 'sudoku') newSudoku();
+            else if (currentGame === 'snake') resetSnake();
+            else if (currentGame === 'tetris') resetTetris();
+            else if (currentGame === 'minesweeper') newMineGame();
+        }
+
+        // ==================== 数独 ====================
+        let sudokuGrid = [];
+        let sudokuSolution = [];
+        let sudokuFixed = [];
+        let selectedCell = null;
+        let sudokuDiff = 'easy';
+
+        const sudokuDiffConfig = {
+            easy: 35,
+            medium: 45,
+            hard: 55,
+            expert: 64
+        };
+
+        function setSudokuDiff(diff) {
+            sudokuDiff = diff;
+            document.querySelectorAll('#sudoku .diff-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function generateSudoku() {
+            const grid = Array(9).fill().map(() => Array(9).fill(0));
+
+            function isValid(grid, row, col, num) {
+                for (let x = 0; x < 9; x++) {
+                    if (grid[row][x] === num) return false;
+                }
+                for (let x = 0; x < 9; x++) {
+                    if (grid[x][col] === num) return false;
+                }
+                const startRow = row - row % 3, startCol = col - col % 3;
+                for (let i = 0; i < 3; i++) {
+                    for (let j = 0; j < 3; j++) {
+                        if (grid[i + startRow][j + startCol] === num) return false;
+                    }
+                }
+                return true;
+            }
+
+            function solve(grid) {
+                for (let row = 0; row < 9; row++) {
+                    for (let col = 0; col < 9; col++) {
+                        if (grid[row][col] === 0) {
+                            const nums = [1,2,3,4,5,6,7,8,9].sort(() => Math.random() - 0.5);
+                            for (let num of nums) {
+                                if (isValid(grid, row, col, num)) {
+                                    grid[row][col] = num;
+                                    if (solve(grid)) return true;
+                                    grid[row][col] = 0;
+                                }
+                            }
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+
+            solve(grid);
+            return grid;
+        }
+
+        function newSudoku() {
+            sudokuSolution = generateSudoku();
+            sudokuGrid = sudokuSolution.map(row => [...row]);
+            sudokuFixed = Array(9).fill().map(() => Array(9).fill(false));
+
+            const cellsToRemove = sudokuDiffConfig[sudokuDiff];
+            let removed = 0;
+            while (removed < cellsToRemove) {
+                const r = Math.floor(Math.random() * 9);
+                const c = Math.floor(Math.random() * 9);
+                if (sudokuGrid[r][c] !== 0) {
+                    sudokuGrid[r][c] = 0;
+                    removed++;
+                }
+            }
+
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    if (sudokuGrid[r][c] !== 0) sudokuFixed[r][c] = true;
+                }
+            }
+
+            selectedCell = null;
+            renderSudoku();
+            startTimer('sudoku-timer');
+        }
+
+        function renderSudoku() {
+            const gridEl = document.getElementById('sudoku-grid');
+            gridEl.innerHTML = '';
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'sudoku-cell';
+                    if (sudokuFixed[r][c]) cell.classList.add('fixed');
+                    if (selectedCell && selectedCell.r === r && selectedCell.c === c) cell.classList.add('selected');
+                    if (sudokuGrid[r][c] !== 0) {
+                        cell.textContent = sudokuGrid[r][c];
+                        if (!sudokuFixed[r][c] && !isValidSudoku(r, c, sudokuGrid[r][c])) {
+                            cell.classList.add('error');
+                        }
+                    }
+                    cell.onclick = () => selectCell(r, c);
+                    gridEl.appendChild(cell);
+                }
+            }
+        }
+
+        function selectCell(r, c) {
+            if (sudokuFixed[r][c]) return;
+            selectedCell = { r, c };
+            renderSudoku();
+        }
+
+        function inputNumber(num) {
+            if (!selectedCell || sudokuFixed[selectedCell.r][selectedCell.c]) return;
+            sudokuGrid[selectedCell.r][selectedCell.c] = num === 0 ? 0 : num;
+            renderSudoku();
+            checkWinSudoku();
+        }
+
+        function isValidSudoku(row, col, num) {
+            for (let x = 0; x < 9; x++) {
+                if (x !== col && sudokuGrid[row][x] === num) return false;
+                if (x !== row && sudokuGrid[x][col] === num) return false;
+            }
+            const startRow = row - row % 3, startCol = col - col % 3;
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    if ((startRow + i !== row || startCol + j !== col) && 
+                        sudokuGrid[startRow + i][startCol + j] === num) return false;
+                }
+            }
+            return true;
+        }
+
+        function checkSudoku() {
+            let errors = 0;
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    if (sudokuGrid[r][c] !== 0 && !isValidSudoku(r, c, sudokuGrid[r][c])) {
+                        errors++;
+                    }
+                }
+            }
+            if (errors === 0) {
+                alert('✅ 目前没有发现错误！');
+            } else {
+                alert(`❌ 发现 ${errors} 处错误，请检查标红的数字！`);
+            }
+        }
+
+        function checkWinSudoku() {
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    if (sudokuGrid[r][c] === 0 || !isValidSudoku(r, c, sudokuGrid[r][c])) return;
+                }
+            }
+            stopTimer();
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            showModal('🎉 恭喜通关！', `用时: ${mins}分${secs}秒 | 难度: ${sudokuDiff}`, true);
+        }
+
+        function clearSudoku() {
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    if (!sudokuFixed[r][c]) sudokuGrid[r][c] = 0;
+                }
+            }
+            renderSudoku();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (currentGame !== 'sudoku' || !selectedCell) return;
+            const key = parseInt(e.key);
+            if (key >= 1 && key <= 9) inputNumber(key);
+            if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') inputNumber(0);
+        });
+
+        // ==================== 贪吃蛇 ====================
+        let snake = [];
+        let food = {};
+        let direction = 'right';
+        let nextDirection = 'right';
+        let snakeScore = 0;
+        let snakeHigh = localStorage.getItem('snakeHigh') || 0;
+        let snakeGameLoop = null;
+        let snakeSpeed = 150;
+        let snakePaused = false;
+        let snakeDiff = 'easy';
+        const snakeCanvas = document.getElementById('snake-canvas');
+        const snakeCtx = snakeCanvas.getContext('2d');
+        const GRID_SIZE = 20;
+        const TILE_COUNT = 20;
+
+        const snakeDiffConfig = {
+            easy: 180,
+            medium: 120,
+            hard: 80,
+            insane: 50
+        };
+
+        document.getElementById('snake-high').textContent = snakeHigh;
+
+        function setSnakeDiff(diff) {
+            snakeDiff = diff;
+            snakeSpeed = snakeDiffConfig[diff];
+            document.querySelectorAll('#snake .diff-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function initSnake() {
+            snake = [{ x: 10, y: 10 }];
+            direction = 'right';
+            nextDirection = 'right';
+            snakeScore = 0;
+            snakePaused = false;
+            placeFood();
+            updateSnakeUI();
+        }
+
+        function placeFood() {
+            do {
+                food = {
+                    x: Math.floor(Math.random() * TILE_COUNT),
+                    y: Math.floor(Math.random() * TILE_COUNT)
+                };
+            } while (snake.some(s => s.x === food.x && s.y === food.y));
+        }
+
+        function startSnake() {
+            if (snakeGameLoop) clearInterval(snakeGameLoop);
+            initSnake();
+            snakeGameLoop = setInterval(gameStepSnake, snakeSpeed);
+        }
+
+        function pauseSnake() {
+            snakePaused = !snakePaused;
+        }
+
+        function resetSnake() {
+            if (snakeGameLoop) clearInterval(snakeGameLoop);
+            initSnake();
+            drawSnake();
+        }
+
+        function gameStepSnake() {
+            if (snakePaused) return;
+            direction = nextDirection;
+            const head = { ...snake[0] };
+
+            switch (direction) {
+                case 'up': head.y--; break;
+                case 'down': head.y++; break;
+                case 'left': head.x--; break;
+                case 'right': head.x++; break;
+            }
+
+            if (head.x < 0 || head.x >= TILE_COUNT || head.y < 0 || head.y >= TILE_COUNT ||
+                snake.some(s => s.x === head.x && s.y === head.y)) {
+                gameOverSnake();
+                return;
+            }
+
+            snake.unshift(head);
+
+            if (head.x === food.x && head.y === food.y) {
+                snakeScore += 10;
+                if (snakeScore > snakeHigh) {
+                    snakeHigh = snakeScore;
+                    localStorage.setItem('snakeHigh', snakeHigh);
+                }
+                placeFood();
+            } else {
+                snake.pop();
+            }
+
+            updateSnakeUI();
+            drawSnake();
+        }
+
+        function updateSnakeUI() {
+            document.getElementById('snake-score').textContent = snakeScore;
+            document.getElementById('snake-high').textContent = snakeHigh;
+            document.getElementById('snake-len').textContent = snake.length;
+        }
+
+        function drawSnake() {
+            snakeCtx.fillStyle = '#0a0a1a';
+            snakeCtx.fillRect(0, 0, snakeCanvas.width, snakeCanvas.height);
+
+            // 绘制网格
+            snakeCtx.strokeStyle = '#1a1a3a';
+            for (let i = 0; i <= TILE_COUNT; i++) {
+                snakeCtx.beginPath();
+                snakeCtx.moveTo(i * GRID_SIZE, 0);
+                snakeCtx.lineTo(i * GRID_SIZE, snakeCanvas.height);
+                snakeCtx.stroke();
+                snakeCtx.beginPath();
+                snakeCtx.moveTo(0, i * GRID_SIZE);
+                snakeCtx.lineTo(snakeCanvas.width, i * GRID_SIZE);
+                snakeCtx.stroke();
+            }
+
+            // 绘制食物
+            snakeCtx.fillStyle = '#ff4444';
+            snakeCtx.shadowColor = '#ff4444';
+            snakeCtx.shadowBlur = 10;
+            snakeCtx.fillRect(food.x * GRID_SIZE + 2, food.y * GRID_SIZE + 2, GRID_SIZE - 4, GRID_SIZE - 4);
+            snakeCtx.shadowBlur = 0;
+
+            // 绘制蛇
+            snake.forEach((s, i) => {
+                const color = i === 0 ? '#00ff88' : '#00cc6a';
+                snakeCtx.fillStyle = color;
+                snakeCtx.shadowColor = color;
+                snakeCtx.shadowBlur = i === 0 ? 15 : 5;
+                snakeCtx.fillRect(s.x * GRID_SIZE + 1, s.y * GRID_SIZE + 1, GRID_SIZE - 2, GRID_SIZE - 2);
+                snakeCtx.shadowBlur = 0;
+            });
+        }
+
+        function gameOverSnake() {
+            clearInterval(snakeGameLoop);
+            showModal('💥 游戏结束', `得分: ${snakeScore} | 长度: ${snake.length} | 难度: ${snakeDiff}`, false);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (currentGame !== 'snake') return;
+            switch (e.key) {
+                case 'ArrowUp': case 'w': case 'W':
+                    if (direction !== 'down') nextDirection = 'up'; break;
+                case 'ArrowDown': case 's': case 'S':
+                    if (direction !== 'up') nextDirection = 'down'; break;
+                case 'ArrowLeft': case 'a': case 'A':
+                    if (direction !== 'right') nextDirection = 'left'; break;
+                case 'ArrowRight': case 'd': case 'D':
+                    if (direction !== 'left') nextDirection = 'right'; break;
+                case ' ':
+                    e.preventDefault();
+                    pauseSnake(); break;
+            }
+        });
+
+        // ==================== 俄罗斯方块 ====================
+        const TETRIS_COLS = 10;
+        const TETRIS_ROWS = 20;
+        const TETRIS_BLOCK = 30;
+        const tetrisCanvas = document.getElementById('tetris-canvas');
+        const tetrisCtx = tetrisCanvas.getContext('2d');
+        const nextCanvas = document.getElementById('next-canvas');
+        const nextCtx = nextCanvas.getContext('2d');
+
+        const SHAPES = [
+            [[1,1,1,1]],           // I
+            [[1,1],[1,1]],         // O
+            [[0,1,0],[1,1,1]],     // T
+            [[1,1,0],[0,1,1]],     // S
+            [[0,1,1],[1,1,0]],     // Z
+            [[1,0,0],[1,1,1]],     // L
+            [[0,0,1],[1,1,1]]      // J
+        ];
+        const COLORS = ['#00f0f0', '#f0f000', '#a000f0', '#00f000', '#f00000', '#f0a000', '#0000f0'];
+
+        let board = [];
+        let currentPiece = null;
+        let nextPiece = null;
+        let tetrisScore = 0;
+        let tetrisLines = 0;
+        let tetrisLevel = 1;
+        let tetrisGameLoop = null;
+        let tetrisPaused = false;
+        let tetrisDiff = 'easy';
+
+        const tetrisDiffConfig = {
+            easy: 800,
+            medium: 500,
+            hard: 300,
+            insane: 150
+        };
+
+        function setTetrisDiff(diff) {
+            tetrisDiff = diff;
+            document.querySelectorAll('#tetris .diff-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function initTetris() {
+            board = Array(TETRIS_ROWS).fill().map(() => Array(TETRIS_COLS).fill(0));
+            tetrisScore = 0;
+            tetrisLines = 0;
+            tetrisLevel = 1;
+            tetrisPaused = false;
+            nextPiece = createPiece();
+            spawnPiece();
+            updateTetrisUI();
+        }
+
+        function createPiece() {
+            const type = Math.floor(Math.random() * SHAPES.length);
+            return {
+                shape: SHAPES[type].map(row => [...row]),
+                color: COLORS[type],
+                x: Math.floor(TETRIS_COLS / 2) - Math.floor(SHAPES[type][0].length / 2),
+                y: 0
+            };
+        }
+
+        function spawnPiece() {
+            currentPiece = nextPiece;
+            nextPiece = createPiece();
+            drawNext();
+            if (collision(currentPiece, 0, 0)) {
+                gameOverTetris();
+            }
+        }
+
+        function collision(piece, dx, dy) {
+            for (let y = 0; y < piece.shape.length; y++) {
+                for (let x = 0; x < piece.shape[y].length; x++) {
+                    if (piece.shape[y][x]) {
+                        const nx = piece.x + x + dx;
+                        const ny = piece.y + y + dy;
+                        if (nx < 0 || nx >= TETRIS_COLS || ny >= TETRIS_ROWS) return true;
+                        if (ny >= 0 && board[ny][nx]) return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function rotatePiece() {
+            const rotated = currentPiece.shape[0].map((_, i) =>
+                currentPiece.shape.map(row => row[i]).reverse()
+            );
+            const oldShape = currentPiece.shape;
+            currentPiece.shape = rotated;
+            if (collision(currentPiece, 0, 0)) {
+                currentPiece.shape = oldShape;
+            }
+        }
+
+        function mergePiece() {
+            currentPiece.shape.forEach((row, y) => {
+                row.forEach((cell, x) => {
+                    if (cell && currentPiece.y + y >= 0) {
+                        board[currentPiece.y + y][currentPiece.x + x] = currentPiece.color;
+                    }
+                });
+            });
+        }
+
+        function clearLines() {
+            let linesCleared = 0;
+            for (let y = TETRIS_ROWS - 1; y >= 0; y--) {
+                if (board[y].every(cell => cell !== 0)) {
+                    board.splice(y, 1);
+                    board.unshift(Array(TETRIS_COLS).fill(0));
+                    linesCleared++;
+                    y++;
+                }
+            }
+            if (linesCleared > 0) {
+                tetrisLines += linesCleared;
+                tetrisScore += [0, 100, 300, 500, 800][linesCleared] * tetrisLevel;
+                tetrisLevel = Math.floor(tetrisLines / 10) + 1;
+                updateTetrisUI();
+            }
+        }
+
+        function startTetris() {
+            if (tetrisGameLoop) clearInterval(tetrisGameLoop);
+            initTetris();
+            tetrisGameLoop = setInterval(gameStepTetris, tetrisDiffConfig[tetrisDiff]);
+        }
+
+        function pauseTetris() {
+            tetrisPaused = !tetrisPaused;
+        }
+
+        function resetTetris() {
+            if (tetrisGameLoop) clearInterval(tetrisGameLoop);
+            initTetris();
+            drawTetris();
+        }
+
+        function gameStepTetris() {
+            if (tetrisPaused) return;
+            if (!collision(currentPiece, 0, 1)) {
+                currentPiece.y++;
+            } else {
+                mergePiece();
+                clearLines();
+                spawnPiece();
+            }
+            drawTetris();
+        }
+
+        function hardDrop() {
+            while (!collision(currentPiece, 0, 1)) {
+                currentPiece.y++;
+                tetrisScore += 2;
+            }
+            mergePiece();
+            clearLines();
+            spawnPiece();
+            drawTetris();
+            updateTetrisUI();
+        }
+
+        function drawTetris() {
+            tetrisCtx.fillStyle = '#1a0a0a';
+            tetrisCtx.fillRect(0, 0, tetrisCanvas.width, tetrisCanvas.height);
+
+            // 绘制网格
+            tetrisCtx.strokeStyle = '#2a1a1a';
+            for (let i = 0; i <= TETRIS_COLS; i++) {
+                tetrisCtx.beginPath();
+                tetrisCtx.moveTo(i * TETRIS_BLOCK, 0);
+                tetrisCtx.lineTo(i * TETRIS_BLOCK, tetrisCanvas.height);
+                tetrisCtx.stroke();
+            }
+            for (let i = 0; i <= TETRIS_ROWS; i++) {
+                tetrisCtx.beginPath();
+                tetrisCtx.moveTo(0, i * TETRIS_BLOCK);
+                tetrisCtx.lineTo(tetrisCanvas.width, i * TETRIS_BLOCK);
+                tetrisCtx.stroke();
+            }
+
+            // 绘制已固定的方块
+            board.forEach((row, y) => {
+                row.forEach((cell, x) => {
+                    if (cell) {
+                        tetrisCtx.fillStyle = cell;
+                        tetrisCtx.fillRect(x * TETRIS_BLOCK + 1, y * TETRIS_BLOCK + 1, TETRIS_BLOCK - 2, TETRIS_BLOCK - 2);
+                    }
+                });
+            });
+
+            // 绘制当前方块
+            if (currentPiece) {
+                tetrisCtx.fillStyle = currentPiece.color;
+                tetrisCtx.shadowColor = currentPiece.color;
+                tetrisCtx.shadowBlur = 10;
+                currentPiece.shape.forEach((row, y) => {
+                    row.forEach((cell, x) => {
+                        if (cell) {
+                            tetrisCtx.fillRect(
+                                (currentPiece.x + x) * TETRIS_BLOCK + 1,
+                                (currentPiece.y + y) * TETRIS_BLOCK + 1,
+                                TETRIS_BLOCK - 2, TETRIS_BLOCK - 2
+                            );
+                        }
+                    });
+                });
+                tetrisCtx.shadowBlur = 0;
+            }
+        }
+
+        function drawNext() {
+            nextCtx.fillStyle = '#1a0a0a';
+            nextCtx.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
+            if (!nextPiece) return;
+
+            const blockSize = 25;
+            const offsetX = (nextCanvas.width - nextPiece.shape[0].length * blockSize) / 2;
+            const offsetY = (nextCanvas.height - nextPiece.shape.length * blockSize) / 2;
+
+            nextCtx.fillStyle = nextPiece.color;
+            nextCtx.shadowColor = nextPiece.color;
+            nextCtx.shadowBlur = 10;
+            nextPiece.shape.forEach((row, y) => {
+                row.forEach((cell, x) => {
+                    if (cell) {
+                        nextCtx.fillRect(
+                            offsetX + x * blockSize + 1,
+                            offsetY + y * blockSize + 1,
+                            blockSize - 2, blockSize - 2
+                        );
+                    }
+                });
+            });
+            nextCtx.shadowBlur = 0;
+        }
+
+        function updateTetrisUI() {
+            document.getElementById('tetris-score').textContent = tetrisScore;
+            document.getElementById('tetris-lines').textContent = tetrisLines;
+            document.getElementById('tetris-level').textContent = tetrisLevel;
+        }
+
+        function gameOverTetris() {
+            clearInterval(tetrisGameLoop);
+            showModal('💥 游戏结束', `得分: ${tetrisScore} | 消除: ${tetrisLines}行 | 等级: ${tetrisLevel}`, false);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (currentGame !== 'tetris' || !currentPiece || tetrisPaused) return;
+            switch (e.key) {
+                case 'ArrowLeft':
+                    if (!collision(currentPiece, -1, 0)) currentPiece.x--;
+                    break;
+                case 'ArrowRight':
+                    if (!collision(currentPiece, 1, 0)) currentPiece.x++;
+                    break;
+                case 'ArrowUp':
+                    rotatePiece();
+                    break;
+                case 'ArrowDown':
+                    if (!collision(currentPiece, 0, 1)) {
+                        currentPiece.y++;
+                        tetrisScore += 1;
+                        updateTetrisUI();
+                    }
+                    break;
+                case ' ':
+                    e.preventDefault();
+                    hardDrop();
+                    break;
+            }
+            drawTetris();
+        });
+
+        // ==================== 扫雷 ====================
+        let mineBoard = [];
+        let mineRevealed = [];
+        let mineFlagged = [];
+        let mineRows = 9, mineCols = 9, mineCount = 10;
+        let mineGameOver = false;
+        let mineFirstClick = true;
+        let mineTimer = 0;
+        let mineTimerInterval = null;
+        let flagMode = false;
+        let mineDiff = 'easy';
+
+        const mineDiffConfig = {
+            easy: { rows: 9, cols: 9, mines: 10 },
+            medium: { rows: 16, cols: 16, mines: 40 },
+            hard: { rows: 16, cols: 30, mines: 99 }
+        };
+
+        function setMineDiff(diff) {
+            mineDiff = diff;
+            document.querySelectorAll('#minesweeper .diff-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            if (diff !== 'custom') {
+                const config = mineDiffConfig[diff];
+                mineRows = config.rows;
+                mineCols = config.cols;
+                mineCount = config.mines;
+            }
+        }
+
+        function toggleFlagMode() {
+            flagMode = !flagMode;
+            const toggle = document.getElementById('flag-toggle');
+            const status = document.getElementById('flag-status');
+            toggle.classList.toggle('active', flagMode);
+            status.textContent = flagMode ? '开启 (点击放置/移除旗帜)' : '关闭 (右键也可标记)';
+        }
+
+        function newMineGame() {
+            mineBoard = Array(mineRows).fill().map(() => Array(mineCols).fill(0));
+            mineRevealed = Array(mineRows).fill().map(() => Array(mineCols).fill(false));
+            mineFlagged = Array(mineRows).fill().map(() => Array(mineCols).fill(false));
+            mineGameOver = false;
+            mineFirstClick = true;
+            mineTimer = 0;
+            if (mineTimerInterval) clearInterval(mineTimerInterval);
+            document.getElementById('mine-timer').textContent = '0';
+            document.getElementById('mine-count').textContent = mineCount;
+            document.getElementById('flag-count').textContent = '0';
+            renderMineGrid();
+        }
+
+        function resetMineGame() {
+            newMineGame();
+        }
+
+        function placeMines(excludeR, excludeC) {
+            let placed = 0;
+            while (placed < mineCount) {
+                const r = Math.floor(Math.random() * mineRows);
+                const c = Math.floor(Math.random() * mineCols);
+                if (mineBoard[r][c] !== -1 && !(r === excludeR && c === excludeC)) {
+                    mineBoard[r][c] = -1;
+                    placed++;
+                }
+            }
+            // 计算数字
+            for (let r = 0; r < mineRows; r++) {
+                for (let c = 0; c < mineCols; c++) {
+                    if (mineBoard[r][c] === -1) continue;
+                    let count = 0;
+                    for (let dr = -1; dr <= 1; dr++) {
+                        for (let dc = -1; dc <= 1; dc++) {
+                            const nr = r + dr, nc = c + dc;
+                            if (nr >= 0 && nr < mineRows && nc >= 0 && nc < mineCols && mineBoard[nr][nc] === -1) {
+                                count++;
+                            }
+                        }
+                    }
+                    mineBoard[r][c] = count;
+                }
+            }
+        }
+
+        function revealCell(r, c) {
+            if (r < 0 || r >= mineRows || c < 0 || c >= mineCols) return;
+            if (mineRevealed[r][c] || mineFlagged[r][c]) return;
+
+            mineRevealed[r][c] = true;
+
+            if (mineBoard[r][c] === 0) {
+                for (let dr = -1; dr <= 1; dr++) {
+                    for (let dc = -1; dc <= 1; dc++) {
+                        revealCell(r + dr, c + dc);
+                    }
+                }
+            }
+        }
+
+        function handleMineClick(r, c) {
+            if (mineGameOver) return;
+
+            if (mineFirstClick) {
+                placeMines(r, c);
+                mineFirstClick = false;
+                mineTimerInterval = setInterval(() => {
+                    mineTimer++;
+                    document.getElementById('mine-timer').textContent = mineTimer;
+                }, 1000);
+            }
+
+            if (flagMode) {
+                if (!mineRevealed[r][c]) {
+                    mineFlagged[r][c] = !mineFlagged[r][c];
+                    updateFlagCount();
+                }
+            } else {
+                if (mineFlagged[r][c]) return;
+
+                if (mineBoard[r][c] === -1) {
+                    mineGameOver = true;
+                    clearInterval(mineTimerInterval);
+                    // 显示所有雷
+                    for (let i = 0; i < mineRows; i++) {
+                        for (let j = 0; j < mineCols; j++) {
+                            if (mineBoard[i][j] === -1) mineRevealed[i][j] = true;
+                        }
+                    }
+                    renderMineGrid();
+                    showModal('💥 踩到雷了！', `用时: ${mineTimer}秒 | 难度: ${mineDiff}`, false);
+                    return;
+                }
+
+                revealCell(r, c);
+            }
+
+            renderMineGrid();
+            checkWinMine();
+        }
+
+        function handleMineRightClick(r, c, e) {
+            e.preventDefault();
+            if (mineGameOver || mineFirstClick) return;
+            if (!mineRevealed[r][c]) {
+                mineFlagged[r][c] = !mineFlagged[r][c];
+                updateFlagCount();
+                renderMineGrid();
+                checkWinMine();
+            }
+        }
+
+        function updateFlagCount() {
+            let count = 0;
+            for (let r = 0; r < mineRows; r++) {
+                for (let c = 0; c < mineCols; c++) {
+                    if (mineFlagged[r][c]) count++;
+                }
+            }
+            document.getElementById('flag-count').textContent = count;
+        }
+
+        function checkWinMine() {
+            let revealedCount = 0;
+            for (let r = 0; r < mineRows; r++) {
+                for (let c = 0; c < mineCols; c++) {
+                    if (mineRevealed[r][c]) revealedCount++;
+                }
+            }
+            if (revealedCount === mineRows * mineCols - mineCount) {
+                mineGameOver = true;
+                clearInterval(mineTimerInterval);
+                showModal('🎉 扫雷成功！', `用时: ${mineTimer}秒 | 难度: ${mineDiff}`, true);
+            }
+        }
+
+        function renderMineGrid() {
+            const gridEl = document.getElementById('mine-grid');
+            gridEl.innerHTML = '';
+            gridEl.style.gridTemplateColumns = `repeat(${mineCols}, 35px)`;
+
+            for (let r = 0; r < mineRows; r++) {
+                for (let c = 0; c < mineCols; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'mine-cell';
+
+                    if (mineRevealed[r][c]) {
+                        cell.classList.add('revealed');
+                        if (mineBoard[r][c] === -1) {
+                            cell.classList.add('mine');
+                            cell.textContent = '💣';
+                        } else if (mineBoard[r][c] > 0) {
+                            cell.classList.add(`num-${mineBoard[r][c]}`);
+                            cell.textContent = mineBoard[r][c];
+                        }
+                    } else if (mineFlagged[r][c]) {
+                        cell.classList.add('flagged');
+                        cell.textContent = '🚩';
+                    }
+
+                    cell.onclick = () => handleMineClick(r, c);
+                    cell.oncontextmenu = (e) => handleMineRightClick(r, c, e);
+                    gridEl.appendChild(cell);
+                }
+            }
+        }
+
+        // ==================== 初始化 ====================
+        newSudoku();
+        initSnake();
+        drawSnake();
+        initTetris();
+        drawTetris();
+        newMineGame();
+    </script>
+</body>
+</html>

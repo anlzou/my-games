@@ -62,13 +62,13 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
-        .subtitle {
-            text-align: center;
-            color: #aaa;
-            margin-bottom: 16px;
-            font-size: 0.9em;
-            transition: all 0.3s;
+        h1 .game-icon {
+            font-size: 1em; /* 图标大小随文字 */
         }
 
         /* 桌面端游戏选择器 */
@@ -396,17 +396,17 @@
         .tetris-controls {
             display: none;
             grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
+            gap: 8px;
             width: 100%;
-            max-width: 280px;
+            max-width: 320px;
         }
         .tetris-btn {
-            padding: 14px;
+            padding: 18px 10px;
             background: rgba(255, 107, 107, 0.15);
             border: 2px solid rgba(255, 107, 107, 0.4);
             color: #ff6b6b;
             border-radius: 12px;
-            font-size: 1.1em;
+            font-size: 1.2em;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.15s;
@@ -414,7 +414,10 @@
             touch-action: manipulation;
         }
         .tetris-btn:active { background: #ff6b6b; color: #1a0a1a; transform: scale(0.95); }
-        .tetris-btn.drop { grid-column: span 3; background: rgba(255, 107, 107, 0.25); }
+        .tetris-btn.full-width {
+            grid-column: span 3;
+            background: rgba(255, 107, 107, 0.25);
+        }
 
         /* ===== 扫雷 ===== */
         .minesweeper-wrapper {
@@ -574,7 +577,6 @@
             .menu-btn, .help-btn { display: block; }
             .game-selector { display: none; }
             h1 { font-size: 1.3em; }
-            .subtitle { font-size: 0.8em; margin-bottom: 10px; }
             .difficulty-selector { margin-bottom: 8px; }
             .diff-btn { padding: 5px 10px; font-size: 0.75em; }
             .control-panel { margin-bottom: 8px; }
@@ -620,18 +622,14 @@
 
             .tetris-controls {
                 display: grid;
-                gap: 4px;
-                max-width: 220px;
+                gap: 6px;
+                max-width: 280px;
                 margin-top: 4px;
             }
             .tetris-btn {
-                padding: 10px 6px;
-                font-size: 0.85em;
-                border-radius: 8px;
-            }
-            .tetris-btn.drop {
-                padding: 8px;
-                font-size: 0.8em;
+                padding: 14px 8px;
+                font-size: 1.1em;
+                border-radius: 10px;
             }
         }
 
@@ -649,11 +647,11 @@
                 height: 70px !important;
             }
             .tetris-controls {
-                max-width: 200px;
+                max-width: 240px;
             }
             .tetris-btn {
-                padding: 8px 4px;
-                font-size: 0.8em;
+                padding: 12px 6px;
+                font-size: 1em;
             }
         }
     </style>
@@ -674,10 +672,9 @@
         <!-- 顶部栏 -->
         <div class="top-bar">
             <button class="menu-btn" id="menu-btn" onclick="openSidebar()">☰</button>
-            <h1>经典游戏合集</h1>
+            <h1><span class="game-icon" id="game-icon">🧩</span> <span id="game-title">数独</span></h1>
             <button class="help-btn" id="help-btn" onclick="showRules()">?</button>
         </div>
-        <p class="subtitle" id="subtitle">选择游戏，挑战不同难度！</p>
 
         <!-- 桌面端游戏选择器 -->
         <div class="game-selector" id="desktop-selector">
@@ -728,7 +725,7 @@
             </div>
             <div class="control-panel">
                 <button class="ctrl-btn start-btn" onclick="startSnake()">开始</button>
-                <button class="ctrl-btn pause-btn" onclick="pauseSnake()">暂停</button>
+                <button class="ctrl-btn pause-btn" id="snake-pause-btn" onclick="pauseSnake()">暂停</button>
                 <button class="ctrl-btn reset-btn" onclick="resetSnake()">重置</button>
             </div>
             <div class="info-panel">
@@ -760,7 +757,7 @@
             </div>
             <div class="control-panel">
                 <button class="ctrl-btn start-btn" onclick="startTetris()">开始</button>
-                <button class="ctrl-btn pause-btn" onclick="pauseTetris()">暂停</button>
+                <button class="ctrl-btn pause-btn" id="tetris-pause-btn" onclick="pauseTetris()">暂停</button>
                 <button class="ctrl-btn reset-btn" onclick="resetTetris()">重置</button>
             </div>
             <div class="tetris-wrapper">
@@ -783,8 +780,8 @@
                     <button class="tetris-btn" ontouchstart="handleTetrisBtn(event,'left')">◀ 左移</button>
                     <button class="tetris-btn" ontouchstart="handleTetrisBtn(event,'rotate')">↻ 旋转</button>
                     <button class="tetris-btn" ontouchstart="handleTetrisBtn(event,'right')">右移 ▶</button>
-                    <button class="tetris-btn" ontouchstart="handleTetrisBtn(event,'down')">▼ 加速</button>
-                    <button class="tetris-btn drop" ontouchstart="handleTetrisBtn(event,'drop')">⬇ 直接落底</button>
+                    <button class="tetris-btn full-width" ontouchstart="handleTetrisBtn(event,'down')">▼ 加速</button>
+                    <button class="tetris-btn full-width" ontouchstart="handleTetrisBtn(event,'drop')">⬇ 直接落底</button>
                 </div>
             </div>
         </div>
@@ -841,10 +838,16 @@
 // ==================== 通用功能 ====================
 let currentGame = 'sudoku';
 const gameNames = {
-    sudoku: '🧩 数独',
-    snake: '🐍 贪吃蛇',
-    tetris: '🟦 俄罗斯方块',
-    minesweeper: '💣 扫雷'
+    sudoku: '数独',
+    snake: '贪吃蛇',
+    tetris: '俄罗斯方块',
+    minesweeper: '扫雷'
+};
+const gameIcons = {
+    sudoku: '🧩',
+    snake: '🐍',
+    tetris: '🟦',
+    minesweeper: '💣'
 };
 
 let timerInterval = null;
@@ -874,7 +877,10 @@ function showGame(game) {
     if (btn) btn.classList.add('active');
     currentGame = game;
     stopTimer();
-    document.getElementById('subtitle').textContent = gameNames[game];
+    
+    // 更新顶部标题和图标
+    document.getElementById('game-title').textContent = gameNames[game];
+    document.getElementById('game-icon').textContent = gameIcons[game];
 }
 
 function startTimer(displayId) {
@@ -1140,6 +1146,7 @@ function initSnake() {
     snake = [{ x: 10, y: 10 }];
     direction = 'right'; nextDirection = 'right';
     snakeScore = 0; snakePaused = false;
+    document.getElementById('snake-pause-btn').textContent = '暂停'; // 初始化按钮状态
     placeFood(); updateSnakeUI();
 }
 
@@ -1154,7 +1161,11 @@ function startSnake() {
     snakeGameLoop = setInterval(gameStepSnake, snakeSpeed);
 }
 
-function pauseSnake() { snakePaused = !snakePaused; }
+function pauseSnake() {
+    snakePaused = !snakePaused;
+    const btn = document.getElementById('snake-pause-btn');
+    btn.textContent = snakePaused ? '继续' : '暂停';
+}
 
 function resetSnake() {
     if (snakeGameLoop) clearInterval(snakeGameLoop);
@@ -1263,6 +1274,7 @@ function setTetrisDiff(diff) {
 function initTetris() {
     board = Array(TETRIS_ROWS).fill().map(() => Array(TETRIS_COLS).fill(0));
     tetrisScore = 0; tetrisLines = 0; tetrisLevel = 1; tetrisPaused = false;
+    document.getElementById('tetris-pause-btn').textContent = '暂停'; // 初始化按钮状态
     nextPiece = createPiece(); spawnPiece(); updateTetrisUI();
 }
 
@@ -1318,7 +1330,11 @@ function startTetris() {
     tetrisGameLoop = setInterval(gameStepTetris, tetrisDiffConfig[tetrisDiff]);
 }
 
-function pauseTetris() { tetrisPaused = !tetrisPaused; }
+function pauseTetris() {
+    tetrisPaused = !tetrisPaused;
+    const btn = document.getElementById('tetris-pause-btn');
+    btn.textContent = tetrisPaused ? '继续' : '暂停';
+}
 
 function resetTetris() {
     if (tetrisGameLoop) clearInterval(tetrisGameLoop);

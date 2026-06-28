@@ -413,8 +413,8 @@
         }
 
         .drawer-section {
-            background: transparent; /* 修改为完全透明背景 */
-            border: 2px solid rgba(255, 107, 107, 0.4);
+            background: transparent; /* 完全透明背景 */
+            border: none; /* 移除边框 */
             border-radius: 10px;
             padding: 8px;
             transform: translateX(calc(100% + 15px)); /* 默认隐藏在按钮右侧，留出按钮的距离 */
@@ -439,25 +439,30 @@
             z-index: 15;
         }
         .drawer-btn {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             padding: 0;
-            background: rgba(255, 107, 107, 0.2);
-            border: 2px solid rgba(255, 107, 107, 0.6);
-            color: #ff6b6b;
-            border-radius: 50%; /* 圆形按钮 */
-            font-size: 1.2em; /* 调整Emoji大小 */
+            background: rgba(0, 212, 255, 0.15);
+            border: 2px solid rgba(0, 212, 255, 0.4);
+            color: #00d4ff;
+            border-radius: 50%;
+            font-size: 1.2em;
             cursor: pointer;
             transition: all 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 10px rgba(255, 107, 107, 0.2);
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+        }
+        .drawer-btn:active {
+            transform: scale(0.9);
+            background: #00d4ff;
+            color: #1a1a2e;
         }
         .drawer-btn.active {
-            background: #ff6b6b;
-            color: #1a0a1a;
-            box-shadow: 0 0 15px rgba(255, 107, 107, 0.6);
+            background: #00d4ff;
+            color: #1a1a2e;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
         }
 
         .tetris-controls {
@@ -876,8 +881,8 @@
 
                 <!-- 移动端右侧抽屉控制按钮 -->
                 <div class="drawer-controls">
-                    <button class="drawer-btn" id="toggle-next-btn" onclick="toggleTetrisDrawer('next')">👁</button>
-                    <button class="drawer-btn" id="toggle-info-btn" onclick="toggleTetrisDrawer('info')">📊</button>
+                    <button class="drawer-btn" id="toggle-next-btn" onclick="toggleTetrisDrawer('next')">👁️</button>
+                    <button class="drawer-btn" id="toggle-info-btn" onclick="toggleTetrisDrawer('info')">🏆</button>
                 </div>
 
                 <div class="controls-hint">←→ 移动 | ↑ 旋转 | ↓ 加速 | 空格直接落底</div>
@@ -1614,36 +1619,20 @@ function toggleTetrisDrawer(type) {
 }
 
 function closeDrawerOnOutsideClick(e) {
-    const nextSection = document.getElementById('drawer-next');
-    const infoSection = document.getElementById('drawer-info');
     const nextBtn = document.getElementById('toggle-next-btn');
     const infoBtn = document.getElementById('toggle-info-btn');
 
-    // 判断点击目标是否在按钮或面板内
-    const isInside = nextBtn.contains(e.target) || infoBtn.contains(e.target) || 
-                     nextSection.contains(e.target) || infoSection.contains(e.target);
-
-    if (!isInside) {
-        let needRemoveListener = false;
-        
-        if (nextSection.classList.contains('show')) {
-            nextSection.classList.remove('show');
-            nextBtn.classList.remove('active');
-            needRemoveListener = true;
-        }
-        if (infoSection.classList.contains('show')) {
-            infoSection.classList.remove('show');
-            infoBtn.classList.remove('active');
-            needRemoveListener = true;
-        }
-
-        // 面板收回后，移除全局监听，恢复游戏正常操作
-        if (needRemoveListener) {
-            document.removeEventListener('touchstart', closeDrawerOnOutsideClick);
-            document.removeEventListener('mousedown', closeDrawerOnOutsideClick);
-        }
+    // 只有点击按钮时才关闭面板
+    if (nextBtn.contains(e.target)) {
+        toggleTetrisDrawer('next');
+    } else if (infoBtn.contains(e.target)) {
+        toggleTetrisDrawer('info');
     }
+    // 移除事件监听器，避免重复绑定
+    document.removeEventListener('touchstart', closeDrawerOnOutsideClick);
+    document.removeEventListener('mousedown', closeDrawerOnOutsideClick);
 }
+
 
 // ==================== 扫雷 ====================
 let mineBoard = [], mineRevealed = [], mineFlagged = [];

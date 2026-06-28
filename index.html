@@ -69,7 +69,11 @@
         }
         h1 .game-icon {
             font-size: 1em; /* 图标大小随文字 */
+            -webkit-background-clip: unset; /* 取消背景裁剪 */
+            background-clip: unset; /* 取消背景裁剪 */
+            -webkit-text-fill-color: initial; /* 恢复默认颜色渲染，让Emoji显示彩色 */
         }
+
 
         /* 桌面端游戏选择器 */
         .game-selector {
@@ -661,7 +665,7 @@
 
         @media (max-width: 400px) {
             .sudoku-grid { max-width: 100%; }
-            
+
             .dpad { 
                 grid-template-columns: repeat(3, 64px); /* 从52px增大到64px */
                 grid-template-rows: repeat(3, 64px);    /* 从52px增大到64px */
@@ -698,9 +702,9 @@
         <div class="sidebar" id="sidebar">
             <button class="sidebar-close" onclick="closeSidebar()">✕</button>
             <div class="sidebar-title">🎮 选择游戏</div>
-            <button class="sidebar-item active" data-game="sudoku" onclick="selectGameFromSidebar('sudoku')">🧩 数独</button>
+            <button class="sidebar-item active" data-game="sudoku" onclick="selectGameFromSidebar('sudoku')">🔢 数独</button>
             <button class="sidebar-item" data-game="snake" onclick="selectGameFromSidebar('snake')">🐍 贪吃蛇</button>
-            <button class="sidebar-item" data-game="tetris" onclick="selectGameFromSidebar('tetris')">🟦 俄罗斯方块</button>
+            <button class="sidebar-item" data-game="tetris" onclick="selectGameFromSidebar('tetris')">🧱 俄罗斯方块</button>
             <button class="sidebar-item" data-game="minesweeper" onclick="selectGameFromSidebar('minesweeper')">💣 扫雷</button>
         </div>
 
@@ -713,9 +717,9 @@
 
         <!-- 桌面端游戏选择器 -->
         <div class="game-selector" id="desktop-selector">
-            <button class="game-btn active" onclick="showGame('sudoku')">🧩 数独</button>
+            <button class="game-btn active" onclick="showGame('sudoku')">🔢 数独</button>
             <button class="game-btn" onclick="showGame('snake')">🐍 贪吃蛇</button>
-            <button class="game-btn" onclick="showGame('tetris')">🟦 俄罗斯方块</button>
+            <button class="game-btn" onclick="showGame('tetris')">🧱 俄罗斯方块</button>
             <button class="game-btn" onclick="showGame('minesweeper')">💣 扫雷</button>
         </div>
 
@@ -879,11 +883,12 @@ const gameNames = {
     minesweeper: '扫雷'
 };
 const gameIcons = {
-    sudoku: '🧩',
+    sudoku: '🔢',
     snake: '🐍',
-    tetris: '🟦',
+    tetris: '🧱',
     minesweeper: '💣'
 };
+
 
 let timerInterval = null;
 let seconds = 0;

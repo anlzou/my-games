@@ -929,6 +929,151 @@
         @media (max-width: 768px) {
             .breakout-controls { display: grid; }
         }
+
+                /* ===== 记忆翻牌 ===== */
+        .memory-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        .memory-grid {
+            display: grid;
+            gap: 10px;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .memory-card {
+            aspect-ratio: 1;
+            background: transparent;
+            perspective: 1000px;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .memory-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.5s;
+            transform-style: preserve-3d;
+        }
+        .memory-card.flipped .memory-card-inner,
+        .memory-card.matched .memory-card-inner {
+            transform: rotateY(180deg);
+        }
+        .memory-card-front, .memory-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-size: clamp(1.6em, 6vw, 2.4em);
+        }
+        .memory-card-front {
+            background: linear-gradient(135deg, #00d4ff, #7b2cbf);
+            border: 2px solid rgba(0, 212, 255, 0.5);
+            color: white;
+            font-size: clamp(1.2em, 4vw, 1.8em);
+            font-weight: bold;
+        }
+        .memory-card-back {
+            background: #2a2a4a;
+            border: 2px solid rgba(123, 44, 191, 0.5);
+            transform: rotateY(180deg);
+        }
+        .memory-card.matched .memory-card-back {
+            background: #1a3a2a;
+            border-color: #28a745;
+            box-shadow: 0 0 12px rgba(40, 167, 69, 0.5);
+        }
+
+        /* ===== 推箱子 ===== */
+        .sokoban-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        .sokoban-grid-wrapper {
+            overflow: auto;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 4px;
+        }
+        .sokoban-grid {
+            display: grid;
+            gap: 1px;
+            background: #333;
+            padding: 4px;
+            border-radius: 8px;
+            width: fit-content;
+        }
+        .sokoban-cell {
+            width: clamp(28px, 7vw, 36px);
+            height: clamp(28px, 7vw, 36px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(0.9em, 3.2vw, 1.2em);
+            border-radius: 3px;
+            user-select: none;
+            -webkit-user-select: none;
+            position: relative;
+        }
+        .sokoban-cell.wall {
+            background: #444;
+            border: 1px solid #333;
+            box-shadow: inset 0 0 4px #222;
+        }
+        .sokoban-cell.floor {
+            background: #2a2a4a;
+        }
+        .sokoban-cell.target {
+            background: #2a2a4a;
+            color: #ffd700;
+            font-size: 0.75em;
+        }
+        .sokoban-cell.box {
+            background: #8B4513;
+            border-radius: 4px;
+            border: 2px solid #A0522D;
+            color: #fff;
+            font-size: 0.85em;
+        }
+        .sokoban-cell.box-on-target {
+            background: #28a745;
+            border-radius: 4px;
+            border: 2px solid #34ce57;
+            color: #fff;
+            font-weight: bold;
+            box-shadow: 0 0 8px rgba(40, 167, 69, 0.4);
+        }
+        .sokoban-cell.player {
+            background: #2a2a4a;
+            color: #3498db;
+            font-size: 1.3em;
+        }
+        .sokoban-cell.player-on-target {
+            background: #2a2a4a;
+            color: #3498db;
+            font-size: 1.3em;
+            box-shadow: inset 0 0 0 2px rgba(255, 215, 0, 0.5);
+        }
+
+        /* 推箱子移动端适配 */
+        @media (max-width: 768px) {
+            .sokoban-grid-wrapper {
+                justify-content: flex-start;
+            }
+        }
     </style>
 </head>
 <body>
@@ -945,6 +1090,8 @@
             <button class="sidebar-item" data-game="game2048" onclick="selectGameFromSidebar('game2048')">🎲 2048</button>
             <button class="sidebar-item" data-game="gomoku" onclick="selectGameFromSidebar('gomoku')">⚫ 五子棋</button>
             <button class="sidebar-item" data-game="breakout" onclick="selectGameFromSidebar('breakout')">🧱 打砖块</button>
+            <button class="sidebar-item" data-game="memory" onclick="selectGameFromSidebar('memory')">🃏 记忆翻牌</button>
+            <button class="sidebar-item" data-game="sokoban" onclick="selectGameFromSidebar('sokoban')">📦 推箱子</button>
         </div>
 
         <!-- 顶部栏 -->
@@ -963,6 +1110,8 @@
             <button class="game-btn" onclick="showGame('game2048')">🎲 2048</button>
             <button class="game-btn" onclick="showGame('gomoku')">⚫ 五子棋</button>
             <button class="game-btn" onclick="showGame('breakout')">🧱 打砖块</button>
+            <button class="game-btn" onclick="showGame('memory')">🃏 记忆翻牌</button>
+            <button class="game-btn" onclick="showGame('sokoban')">📦 推箱子</button>
         </div>
 
         <!-- ========== 数独 ========== -->
@@ -1185,6 +1334,60 @@
                 </div>
             </div>
         </div>
+                <!-- ========== 记忆翻牌 ========== -->
+        <div id="memory" class="game-area">
+            <div class="difficulty-selector">
+                <button class="diff-btn active" onclick="setMemoryDiff('easy')">简单 3×4</button>
+                <button class="diff-btn" onclick="setMemoryDiff('medium')">中等 4×4</button>
+                <button class="diff-btn" onclick="setMemoryDiff('hard')">困难 4×6</button>
+            </div>
+            <div class="control-panel">
+                <button class="ctrl-btn start-btn" onclick="newMemoryGame()">新游戏</button>
+            </div>
+            <div class="info-panel">
+                <div>⏱️ 时间: <span id="memory-timer">00:00</span></div>
+                <div>👣 步数: <span id="memory-moves">0</span></div>
+                <div>🎯 剩余: <span id="memory-left">6</span></div>
+            </div>
+            <div class="memory-wrapper">
+                <div class="memory-grid" id="memory-grid"></div>
+            </div>
+        </div>
+
+        <!-- ========== 推箱子 ========== -->
+        <div id="sokoban" class="game-area">
+            <div class="difficulty-selector" id="sokoban-level-selector">
+                <button class="diff-btn active" onclick="setSokobanLevel(0)">第1关</button>
+                <button class="diff-btn" onclick="setSokobanLevel(1)">第2关</button>
+                <button class="diff-btn" onclick="setSokobanLevel(2)">第3关</button>
+                <button class="diff-btn" onclick="setSokobanLevel(3)">第4关</button>
+                <button class="diff-btn" onclick="setSokobanLevel(4)">第5关</button>
+            </div>
+            <div class="control-panel">
+                <button class="ctrl-btn start-btn" onclick="newSokobanGame()">新游戏</button>
+                <button class="ctrl-btn hint-btn" onclick="undoSokoban()">↩ 撤销</button>
+                <button class="ctrl-btn reset-btn" onclick="resetSokoban()">重置</button>
+            </div>
+            <div class="info-panel">
+                <div>📊 关卡: <span id="sokoban-level">1</span></div>
+                <div>👣 步数: <span id="sokoban-moves">0</span></div>
+                <div>🎯 完成: <span id="sokoban-targets">0/0</span></div>
+            </div>
+            <div class="sokoban-wrapper">
+                <div class="sokoban-grid-wrapper">
+                    <div class="sokoban-grid" id="sokoban-grid"></div>
+                </div>
+                <div class="controls-hint">方向键或 WASD 移动 | Ctrl+Z 撤销</div>
+                <div class="dpad" id="sokoban-dpad">
+                    <div class="dpad-btn empty"></div>
+                    <button class="dpad-btn" ontouchstart="handleSokobanDpad(event,'up')">▲</button>
+                    <div class="dpad-btn empty"></div>
+                    <button class="dpad-btn" ontouchstart="handleSokobanDpad(event,'left')">◀</button>
+                    <button class="dpad-btn" ontouchstart="handleSokobanDpad(event,'down')">▼</button>
+                    <button class="dpad-btn" ontouchstart="handleSokobanDpad(event,'right')">▶</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- 游戏结束弹窗 -->
@@ -1216,7 +1419,9 @@ const gameNames = {
     minesweeper: '扫雷',
     game2048: '2048',
     gomoku: '五子棋',
-    breakout: '打砖块'
+    breakout: '打砖块',
+    memory: '记忆翻牌',
+    sokoban: '推箱子'
 };
 const gameIcons = {
     sudoku: '🔢',
@@ -1225,7 +1430,9 @@ const gameIcons = {
     minesweeper: '💣',
     game2048: '🎲',
     gomoku: '⚫',
-    breakout: '🧱'
+    breakout: '🧱',
+    memory: '🃏',
+    sokoban: '📦'
 };
 
 let timerInterval = null;
@@ -1261,11 +1468,17 @@ function showGame(game) {
     document.getElementById('game-icon').textContent = gameIcons[game];
     
     // 初始化游戏
-        if (game === 'gomoku') {
+    if (game === 'gomoku') {
         newGomokuGame();
     }
     if (game === 'breakout') {
         resetBreakout();
+    }
+    if (game === 'memory') {
+        newMemoryGame();
+    }
+    if (game === 'sokoban') {
+        newSokobanGame();
     }
 }
 
@@ -1307,6 +1520,8 @@ function closeModal() {
     else if (currentGame === 'game2048') newGame2048();
     else if (currentGame === 'gomoku') newGomokuGame();
     else if (currentGame === 'breakout') resetBreakout();
+    else if (currentGame === 'memory') newMemoryGame();
+    else if (currentGame === 'sokoban') newSokobanGame();
 }
 
 // ==================== 规则说明 ====================
@@ -1434,6 +1649,41 @@ const rulesData = {
         </ul>
         <h3>💡 技巧</h3>
         <p>球击中挡板不同位置会改变反弹角度，击中挡板边缘可获得更大角度！</p>
+    `,
+        memory: `
+        <h3>🎯 游戏目标</h3>
+        <p>翻开所有卡片，找出相同的图案配对。全部配对完成即可获胜！</p>
+        <h3>🎮 操作方式</h3>
+        <ul>
+            <li>点击卡片翻开，每次可翻开两张</li>
+            <li>图案相同则配对成功，保持翻开状态</li>
+            <li>图案不同则自动翻回，请牢记位置</li>
+        </ul>
+        <h3>⭐ 难度说明</h3>
+        <ul>
+            <li><b>简单</b>：3×4 共 12 张卡片（6 对）</li>
+            <li><b>中等</b>：4×4 共 16 张卡片（8 对）</li>
+            <li><b>困难</b>：4×6 共 24 张卡片（12 对）</li>
+        </ul>
+        <h3>💡 技巧</h3>
+        <p>尽量记住已翻开卡片的位置，减少无效翻牌，挑战最少步数通关！</p>
+    `,
+    sokoban: `
+        <h3>🎯 游戏目标</h3>
+        <p>控制工人将所有箱子推到金色目标点上，完成所有目标即可过关！</p>
+        <h3>🎮 操作方式</h3>
+        <ul>
+            <li>电脑：方向键 ↑↓←→ 或 WASD 移动，Ctrl+Z 撤销</li>
+            <li>手机：点击屏幕下方的十字方向键</li>
+        </ul>
+        <h3>⭐ 游戏规则</h3>
+        <ul>
+            <li>工人只能推箱子，不能拉箱子</li>
+            <li>一次只能推动一个箱子</li>
+            <li>箱子推到墙角就无法再移动，注意避免死局</li>
+        </ul>
+        <h3>💡 技巧</h3>
+        <p>善用撤销功能回退步数。推箱子前想好退路，避免将箱子推到角落或靠墙的位置！</p>
     `
 };
 
@@ -3001,6 +3251,361 @@ window.addEventListener('resize', () => {
     }
 });
 
+// ==================== 记忆翻牌 ====================
+let memoryDiff = 'easy';
+const memoryDiffConfig = {
+    easy: { rows: 3, cols: 4 },
+    medium: { rows: 4, cols: 4 },
+    hard: { rows: 4, cols: 6 }
+};
+const memoryIcons = ['🍎','🚗','🐱','🌸','🍀','🌙','⭐','🔥','❤️','🎵','⚽','🎁'];
+let memoryCards = [];
+let memoryFlipped = [];
+let memoryMoves = 0;
+let memoryMatchedPairs = 0;
+let memoryTotalPairs = 0;
+let memoryLock = false;
+
+function setMemoryDiff(diff) {
+    memoryDiff = diff;
+    document.querySelectorAll('#memory .diff-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+}
+
+function newMemoryGame() {
+    const cfg = memoryDiffConfig[memoryDiff];
+    memoryTotalPairs = (cfg.rows * cfg.cols) / 2;
+    memoryMatchedPairs = 0;
+    memoryMoves = 0;
+    memoryFlipped = [];
+    memoryLock = false;
+
+    const selectedIcons = memoryIcons.slice(0, memoryTotalPairs);
+    const cardIcons = [...selectedIcons, ...selectedIcons];
+    for (let i = cardIcons.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [cardIcons[i], cardIcons[j]] = [cardIcons[j], cardIcons[i]];
+    }
+
+    memoryCards = cardIcons.map((icon, i) => ({
+        icon, flipped: false, matched: false, id: i
+    }));
+
+    renderMemoryGrid();
+    updateMemoryUI();
+    startTimer('memory-timer');
+}
+
+function renderMemoryGrid() {
+    const grid = document.getElementById('memory-grid');
+    grid.innerHTML = '';
+    const cfg = memoryDiffConfig[memoryDiff];
+    grid.style.gridTemplateColumns = `repeat(${cfg.cols}, 1fr)`;
+
+    memoryCards.forEach((card, i) => {
+        const cardEl = document.createElement('div');
+        cardEl.className = 'memory-card';
+        if (card.flipped || card.matched) cardEl.classList.add('flipped');
+        if (card.matched) cardEl.classList.add('matched');
+
+        cardEl.innerHTML = `
+            <div class="memory-card-inner">
+                <div class="memory-card-front">?</div>
+                <div class="memory-card-back">${card.icon}</div>
+            </div>
+        `;
+        cardEl.onclick = () => handleMemoryClick(i);
+        grid.appendChild(cardEl);
+    });
+}
+
+function handleMemoryClick(idx) {
+    if (memoryLock) return;
+    if (memoryCards[idx].flipped || memoryCards[idx].matched) return;
+
+    memoryCards[idx].flipped = true;
+    memoryFlipped.push(idx);
+    renderMemoryGrid();
+
+    if (memoryFlipped.length === 2) {
+        memoryMoves++;
+        updateMemoryUI();
+        const [i1, i2] = memoryFlipped;
+
+        if (memoryCards[i1].icon === memoryCards[i2].icon) {
+            memoryCards[i1].matched = true;
+            memoryCards[i2].matched = true;
+            memoryMatchedPairs++;
+            memoryFlipped = [];
+            updateMemoryUI();
+            renderMemoryGrid();
+
+            if (memoryMatchedPairs === memoryTotalPairs) {
+                stopTimer();
+                const mins = Math.floor(seconds / 60), secs = seconds % 60;
+                showModal('🎉 恭喜通关！', `用时: ${mins}分${secs}秒 | 步数: ${memoryMoves} | 难度: ${memoryDiff}`, true);
+            }
+        } else {
+            memoryLock = true;
+            setTimeout(() => {
+                memoryCards[i1].flipped = false;
+                memoryCards[i2].flipped = false;
+                memoryFlipped = [];
+                memoryLock = false;
+                renderMemoryGrid();
+            }, 900);
+        }
+    }
+}
+
+function updateMemoryUI() {
+    document.getElementById('memory-moves').textContent = memoryMoves;
+    document.getElementById('memory-left').textContent = memoryTotalPairs - memoryMatchedPairs;
+}
+
+// ==================== 推箱子 ====================
+const sokobanLevels = [
+    // Level 1
+    [
+        "#####",
+        "#@$.#",
+        "#####"
+    ],
+    // Level 2 (Microban classic)
+    [
+        "  #####",
+        "  #   #",
+        "  #$  #",
+        "###  .#",
+        "#  .@ #",
+        "#######"
+    ],
+    // Level 3
+    [
+        " ####",
+        " #  #",
+        " #$.#",
+        "##  #",
+        "# .@#",
+        "#####"
+    ],
+    // Level 4
+    [
+        "#####",
+        "#.  #",
+        "# $ #",
+        "#.@ #",
+        "#.  #",
+        "#####"
+    ],
+    // Level 5
+    [
+        "  ####",
+        "  #  #",
+        "  #$ #",
+        "###  #",
+        "# .@ #",
+        "# .  #",
+        "######"
+    ]
+];
+
+let sokobanLevel = 0;
+let sokobanMap = [];
+let sokobanPlayer = { r: 0, c: 0 };
+let sokobanBoxes = [];
+let sokobanTargets = [];
+let sokobanMoves = 0;
+let sokobanHistory = [];
+let sokobanGameOver = false;
+
+function setSokobanLevel(level) {
+    sokobanLevel = level;
+    const btns = document.querySelectorAll('#sokoban-level-selector .diff-btn');
+    btns.forEach((b, i) => b.classList.toggle('active', i === level));
+    newSokobanGame();
+}
+
+function parseSokobanLevel(levelIdx) {
+    const raw = sokobanLevels[levelIdx];
+    sokobanMap = [];
+    sokobanBoxes = [];
+    sokobanTargets = [];
+    sokobanPlayer = { r: 0, c: 0 };
+
+    let maxCols = 0;
+    for (let r = 0; r < raw.length; r++) maxCols = Math.max(maxCols, raw[r].length);
+
+    for (let r = 0; r < raw.length; r++) {
+        const row = [];
+        for (let c = 0; c < maxCols; c++) {
+            const ch = raw[r][c] || ' ';
+            if (ch === '@') {
+                sokobanPlayer = { r, c };
+                row.push(' ');
+            } else if (ch === '$') {
+                sokobanBoxes.push({ r, c });
+                row.push(' ');
+            } else if (ch === '.') {
+                sokobanTargets.push({ r, c });
+                row.push('.');
+            } else if (ch === '*') {
+                sokobanBoxes.push({ r, c });
+                sokobanTargets.push({ r, c });
+                row.push('.');
+            } else if (ch === '+') {
+                sokobanPlayer = { r, c };
+                sokobanTargets.push({ r, c });
+                row.push('.');
+            } else {
+                row.push(ch);
+            }
+        }
+        sokobanMap.push(row);
+    }
+}
+
+function newSokobanGame() {
+    parseSokobanLevel(sokobanLevel);
+    sokobanMoves = 0;
+    sokobanHistory = [];
+    sokobanGameOver = false;
+    updateSokobanUI();
+    renderSokoban();
+}
+
+function resetSokoban() {
+    newSokobanGame();
+}
+
+function moveSokobanPlayer(dr, dc) {
+    if (sokobanGameOver) return;
+
+    const nr = sokobanPlayer.r + dr;
+    const nc = sokobanPlayer.c + dc;
+
+    if (nr < 0 || nr >= sokobanMap.length || nc < 0 || nc >= sokobanMap[0].length) return;
+    if (sokobanMap[nr][nc] === '#') return;
+
+    const boxIdx = sokobanBoxes.findIndex(b => b.r === nr && b.c === nc);
+
+    if (boxIdx !== -1) {
+        const br = nr + dr;
+        const bc = nc + dc;
+        if (br < 0 || br >= sokobanMap.length || bc < 0 || bc >= sokobanMap[0].length) return;
+        if (sokobanMap[br][bc] === '#') return;
+        if (sokobanBoxes.some(b => b.r === br && b.c === bc)) return;
+
+        sokobanHistory.push({
+            player: { ...sokobanPlayer },
+            boxes: sokobanBoxes.map(b => ({ ...b }))
+        });
+        sokobanBoxes[boxIdx] = { r: br, c: bc };
+        sokobanPlayer = { r: nr, c: nc };
+        sokobanMoves++;
+    } else {
+        sokobanHistory.push({
+            player: { ...sokobanPlayer },
+            boxes: sokobanBoxes.map(b => ({ ...b }))
+        });
+        sokobanPlayer = { r: nr, c: nc };
+        sokobanMoves++;
+    }
+
+    renderSokoban();
+    checkSokobanWin();
+}
+
+function undoSokoban() {
+    if (sokobanHistory.length === 0) return;
+    const state = sokobanHistory.pop();
+    sokobanPlayer = state.player;
+    sokobanBoxes = state.boxes;
+    sokobanMoves = Math.max(0, sokobanMoves - 1);
+    sokobanGameOver = false;
+    renderSokoban();
+    updateSokobanUI();
+}
+
+function checkSokobanWin() {
+    const allOnTarget = sokobanTargets.every(t =>
+        sokobanBoxes.some(b => b.r === t.r && b.c === t.c)
+    );
+    if (allOnTarget) {
+        sokobanGameOver = true;
+        showModal('🎉 恭喜通关！', `关卡 ${sokobanLevel + 1} 完成！步数: ${sokobanMoves}`, true);
+    }
+}
+
+function renderSokoban() {
+    const grid = document.getElementById('sokoban-grid');
+    grid.innerHTML = '';
+    const rows = sokobanMap.length;
+    const cols = sokobanMap[0].length;
+    grid.style.gridTemplateColumns = `repeat(${cols}, clamp(28px, 7vw, 36px))`;
+
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            const cell = document.createElement('div');
+            cell.className = 'sokoban-cell';
+            const isWall = sokobanMap[r][c] === '#';
+            const isTarget = sokobanMap[r][c] === '.';
+            const boxHere = sokobanBoxes.find(b => b.r === r && b.c === c);
+            const playerHere = sokobanPlayer.r === r && sokobanPlayer.c === c;
+
+            if (isWall) {
+                cell.classList.add('wall');
+            } else if (boxHere && isTarget) {
+                cell.classList.add('box-on-target');
+                cell.textContent = '✓';
+            } else if (boxHere) {
+                cell.classList.add('box');
+                cell.textContent = '📦';
+            } else if (playerHere && isTarget) {
+                cell.classList.add('player-on-target');
+                cell.textContent = '🙂';
+            } else if (playerHere) {
+                cell.classList.add('player');
+                cell.textContent = '🙂';
+            } else if (isTarget) {
+                cell.classList.add('target');
+                cell.textContent = '◆';
+            } else {
+                cell.classList.add('floor');
+            }
+            grid.appendChild(cell);
+        }
+    }
+}
+
+function updateSokobanUI() {
+    document.getElementById('sokoban-level').textContent = sokobanLevel + 1;
+    document.getElementById('sokoban-moves').textContent = sokobanMoves;
+    const completed = sokobanBoxes.filter(b =>
+        sokobanTargets.some(t => t.r === b.r && t.c === b.c)
+    ).length;
+    document.getElementById('sokoban-targets').textContent = `${completed}/${sokobanTargets.length}`;
+}
+
+function handleSokobanDpad(e, dir) {
+    e.preventDefault();
+    const dirs = { up: [-1, 0], down: [1, 0], left: [0, -1], right: [0, 1] };
+    const [dr, dc] = dirs[dir];
+    moveSokobanPlayer(dr, dc);
+}
+
+document.addEventListener('keydown', (e) => {
+    if (currentGame !== 'sokoban') return;
+    switch (e.key) {
+        case 'ArrowUp': case 'w': case 'W': moveSokobanPlayer(-1, 0); break;
+        case 'ArrowDown': case 's': case 'S': moveSokobanPlayer(1, 0); break;
+        case 'ArrowLeft': case 'a': case 'A': moveSokobanPlayer(0, -1); break;
+        case 'ArrowRight': case 'd': case 'D': moveSokobanPlayer(0, 1); break;
+        case 'z': case 'Z':
+            if (e.ctrlKey || e.metaKey) { e.preventDefault(); undoSokoban(); }
+            break;
+    }
+});
 
 // ==================== 初始化 ====================
 newSudoku();
@@ -3010,6 +3615,8 @@ newMineGame();
 newGame2048();
 newGomokuGame();
 resetBreakout();
+newMemoryGame();
+newSokobanGame();
 
 </script>
 </body>

@@ -568,26 +568,93 @@
             margin-top: 4px;
         }
 
-        /* 移动端适配 */
+        /* ==================== 移动端适配 ==================== */
         @media (max-width: 768px) {
             .container { padding: 8px; }
             .menu-btn, .help-btn { display: block; }
             .game-selector { display: none; }
             h1 { font-size: 1.3em; }
-            .subtitle { font-size: 0.8em; margin-bottom: 12px; }
+            .subtitle { font-size: 0.8em; margin-bottom: 10px; }
+            .difficulty-selector { margin-bottom: 8px; }
             .diff-btn { padding: 5px 10px; font-size: 0.75em; }
+            .control-panel { margin-bottom: 8px; }
             .ctrl-btn { padding: 6px 14px; font-size: 0.8em; min-width: 70px; }
-            .info-panel { font-size: 0.85em; gap: 12px; }
+            .info-panel { margin-bottom: 8px; font-size: 0.85em; gap: 12px; }
             .controls-hint { display: none; }
             .dpad { display: grid; }
-            .tetris-controls { display: grid; }
-            .tetris-side { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+
+            /* 俄罗斯方块移动端紧凑布局 */
+            .tetris-wrapper { gap: 6px; }
+            .tetris-main {
+                gap: 8px;
+                align-items: center;
+            }
+            .tetris-canvas {
+                width: 200px !important;
+                height: 400px !important;
+            }
+            .tetris-side {
+                flex-direction: column;
+                gap: 6px;
+                min-width: auto;
+                align-items: center;
+            }
+            .next-piece {
+                padding: 6px;
+                border-radius: 8px;
+            }
+            .next-piece h3 {
+                font-size: 0.75em;
+                margin-bottom: 4px;
+            }
+            .next-canvas {
+                width: 80px !important;
+                height: 80px !important;
+            }
+            .tetris-info {
+                padding: 8px 10px;
+                font-size: 0.8em;
+                border-radius: 8px;
+            }
+            .tetris-info p { margin: 3px 0; }
+
+            .tetris-controls {
+                display: grid;
+                gap: 4px;
+                max-width: 220px;
+                margin-top: 4px;
+            }
+            .tetris-btn {
+                padding: 10px 6px;
+                font-size: 0.85em;
+                border-radius: 8px;
+            }
+            .tetris-btn.drop {
+                padding: 8px;
+                font-size: 0.8em;
+            }
         }
+
         @media (max-width: 400px) {
             .sudoku-grid { max-width: 100%; }
             .dpad { grid-template-columns: repeat(3, 52px); grid-template-rows: repeat(3, 52px); }
             .dpad-btn { font-size: 1.3em; }
-            .tetris-btn { padding: 10px; font-size: 0.95em; }
+
+            .tetris-canvas {
+                width: 180px !important;
+                height: 360px !important;
+            }
+            .next-canvas {
+                width: 70px !important;
+                height: 70px !important;
+            }
+            .tetris-controls {
+                max-width: 200px;
+            }
+            .tetris-btn {
+                padding: 8px 4px;
+                font-size: 0.8em;
+            }
         }
     </style>
 </head>
@@ -807,7 +874,6 @@ function showGame(game) {
     if (btn) btn.classList.add('active');
     currentGame = game;
     stopTimer();
-    // 更新副标题
     document.getElementById('subtitle').textContent = gameNames[game];
 }
 
@@ -1163,7 +1229,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ==================== 俄罗斯方块 ====================
-const TETRIS_COLS = 10, TETRIS_ROWS = 20, TETRIS_BLOCK = 30;
+const TETRIS_COLS = 10, TETRIS_ROWS = 20;
 const tetrisCanvas = document.getElementById('tetris-canvas');
 const tetrisCtx = tetrisCanvas.getContext('2d');
 const nextCanvas = document.getElementById('next-canvas');
@@ -1177,6 +1243,16 @@ let board = [], currentPiece = null, nextPiece = null;
 let tetrisScore = 0, tetrisLines = 0, tetrisLevel = 1;
 let tetrisGameLoop = null, tetrisPaused = false, tetrisDiff = 'easy';
 const tetrisDiffConfig = { easy: 800, medium: 500, hard: 300, insane: 150 };
+
+// 动态计算方块大小
+function getTetrisBlockSize() {
+    const isMobile = window.innerWidth <= 768;
+    return isMobile ? 20 : 30;
+}
+function getNextBlockSize() {
+    const isMobile = window.innerWidth <= 768;
+    return isMobile ? 16 : 25;
+}
 
 function setTetrisDiff(diff) {
     tetrisDiff = diff;
@@ -1275,28 +1351,38 @@ function handleTetrisBtn(e, action) {
 }
 
 function drawTetris() {
-    tetrisCtx.fillStyle = '#1a0a0a'; tetrisCtx.fillRect(0, 0, tetrisCanvas.width, tetrisCanvas.height);
+    const bs = getTetrisBlockSize();
+    const w = TETRIS_COLS * bs, h = TETRIS_ROWS * bs;
+    // 确保canvas内部尺寸匹配
+    if (tetrisCanvas.width !== w || tetrisCanvas.height !== h) {
+        tetrisCanvas.width = w; tetrisCanvas.height = h;
+    }
+    tetrisCtx.fillStyle = '#1a0a0a'; tetrisCtx.fillRect(0, 0, w, h);
     tetrisCtx.strokeStyle = '#2a1a1a';
-    for (let i = 0; i <= TETRIS_COLS; i++) { tetrisCtx.beginPath(); tetrisCtx.moveTo(i * TETRIS_BLOCK, 0); tetrisCtx.lineTo(i * TETRIS_BLOCK, tetrisCanvas.height); tetrisCtx.stroke(); }
-    for (let i = 0; i <= TETRIS_ROWS; i++) { tetrisCtx.beginPath(); tetrisCtx.moveTo(0, i * TETRIS_BLOCK); tetrisCtx.lineTo(tetrisCanvas.width, i * TETRIS_BLOCK); tetrisCtx.stroke(); }
+    for (let i = 0; i <= TETRIS_COLS; i++) { tetrisCtx.beginPath(); tetrisCtx.moveTo(i * bs, 0); tetrisCtx.lineTo(i * bs, h); tetrisCtx.stroke(); }
+    for (let i = 0; i <= TETRIS_ROWS; i++) { tetrisCtx.beginPath(); tetrisCtx.moveTo(0, i * bs); tetrisCtx.lineTo(w, i * bs); tetrisCtx.stroke(); }
     board.forEach((row, y) => row.forEach((cell, x) => {
-        if (cell) { tetrisCtx.fillStyle = cell; tetrisCtx.fillRect(x * TETRIS_BLOCK + 1, y * TETRIS_BLOCK + 1, TETRIS_BLOCK - 2, TETRIS_BLOCK - 2); }
+        if (cell) { tetrisCtx.fillStyle = cell; tetrisCtx.fillRect(x * bs + 1, y * bs + 1, bs - 2, bs - 2); }
     }));
     if (currentPiece) {
         tetrisCtx.fillStyle = currentPiece.color; tetrisCtx.shadowColor = currentPiece.color; tetrisCtx.shadowBlur = 10;
         currentPiece.shape.forEach((row, y) => row.forEach((cell, x) => {
-            if (cell) tetrisCtx.fillRect((currentPiece.x + x) * TETRIS_BLOCK + 1, (currentPiece.y + y) * TETRIS_BLOCK + 1, TETRIS_BLOCK - 2, TETRIS_BLOCK - 2);
+            if (cell) tetrisCtx.fillRect((currentPiece.x + x) * bs + 1, (currentPiece.y + y) * bs + 1, bs - 2, bs - 2);
         }));
         tetrisCtx.shadowBlur = 0;
     }
 }
 
 function drawNext() {
-    nextCtx.fillStyle = '#1a0a0a'; nextCtx.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
+    const bs = getNextBlockSize();
+    const size = 6 * bs;
+    if (nextCanvas.width !== size || nextCanvas.height !== size) {
+        nextCanvas.width = size; nextCanvas.height = size;
+    }
+    nextCtx.fillStyle = '#1a0a0a'; nextCtx.fillRect(0, 0, size, size);
     if (!nextPiece) return;
-    const bs = 25;
-    const ox = (nextCanvas.width - nextPiece.shape[0].length * bs) / 2;
-    const oy = (nextCanvas.height - nextPiece.shape.length * bs) / 2;
+    const ox = (size - nextPiece.shape[0].length * bs) / 2;
+    const oy = (size - nextPiece.shape.length * bs) / 2;
     nextCtx.fillStyle = nextPiece.color; nextCtx.shadowColor = nextPiece.color; nextCtx.shadowBlur = 10;
     nextPiece.shape.forEach((row, y) => row.forEach((cell, x) => {
         if (cell) nextCtx.fillRect(ox + x * bs + 1, oy + y * bs + 1, bs - 2, bs - 2);
@@ -1324,6 +1410,11 @@ document.addEventListener('keydown', (e) => {
         case 'ArrowDown': handleTetrisBtn({preventDefault:()=>{}}, 'down'); break;
         case ' ': e.preventDefault(); handleTetrisBtn({preventDefault:()=>{}}, 'drop'); break;
     }
+});
+
+// 窗口大小变化时重绘
+window.addEventListener('resize', () => {
+    if (currentGame === 'tetris') { drawTetris(); drawNext(); }
 });
 
 // ==================== 扫雷 ====================

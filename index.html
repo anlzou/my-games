@@ -994,12 +994,22 @@
             box-shadow: 0 0 12px rgba(40, 167, 69, 0.5);
         }
 
-        /* ===== 推箱子 ===== */
+                /* ===== 推箱子 ===== */
         .sokoban-wrapper {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 12px;
+            position: relative;
+        }
+        .sokoban-main {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            justify-content: center;
+            flex-wrap: wrap;
+            position: relative;
+            width: 100%;
         }
         .sokoban-grid-wrapper {
             overflow: auto;
@@ -1017,12 +1027,12 @@
             width: fit-content;
         }
         .sokoban-cell {
-            width: clamp(28px, 7vw, 36px);
-            height: clamp(28px, 7vw, 36px);
+            width: clamp(28px, 7vw, 40px);
+            height: clamp(28px, 7vw, 40px);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: clamp(0.9em, 3.2vw, 1.2em);
+            font-size: clamp(0.9em, 3.2vw, 1.3em);
             border-radius: 3px;
             user-select: none;
             -webkit-user-select: none;
@@ -1068,10 +1078,108 @@
             box-shadow: inset 0 0 0 2px rgba(255, 215, 0, 0.5);
         }
 
+        /* 推箱子关卡抽屉 */
+        .sokoban-drawer {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 220px;
+            z-index: 10;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+        .sokoban-drawer .drawer-section {
+            background: rgba(26, 26, 46, 0.95);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 12px;
+            padding: 12px;
+            transform: translateX(calc(100% + 15px));
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease;
+            opacity: 0;
+            pointer-events: auto;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .sokoban-drawer .drawer-section.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        .sokoban-drawer .drawer-section h3 {
+            color: #00d4ff;
+            font-size: 0.95em;
+            margin-bottom: 10px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+            padding-bottom: 6px;
+        }
+        .sokoban-drawer-controls {
+            display: none;
+            position: absolute;
+            right: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+            flex-direction: column;
+            gap: 12px;
+            z-index: 15;
+        }
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+        .level-btn {
+            padding: 8px 4px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            color: #00d4ff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8em;
+            font-weight: bold;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .level-btn:hover {
+            background: rgba(0, 212, 255, 0.25);
+        }
+        .level-btn.active {
+            background: #00d4ff;
+            color: #1a1a2e;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
+        }
+        .level-btn.completed {
+            border-color: #28a745;
+            color: #28a745;
+        }
+        .level-btn.completed.active {
+            background: #28a745;
+            color: #fff;
+        }
+
         /* 推箱子移动端适配 */
         @media (max-width: 768px) {
             .sokoban-grid-wrapper {
                 justify-content: flex-start;
+            }
+            .sokoban-drawer {
+                display: flex;
+            }
+            .sokoban-drawer-controls {
+                display: flex;
+            }
+            .sokoban-main {
+                position: relative;
+                gap: 0;
+            }
+        }
+        @media (max-width: 400px) {
+            .sokoban-cell {
+                width: clamp(24px, 6.5vw, 36px);
+                height: clamp(24px, 6.5vw, 36px);
+                font-size: clamp(0.8em, 3vw, 1.1em);
             }
         }
     </style>
@@ -1089,7 +1197,7 @@
             <button class="sidebar-item" data-game="minesweeper" onclick="selectGameFromSidebar('minesweeper')">💣 扫雷</button>
             <button class="sidebar-item" data-game="game2048" onclick="selectGameFromSidebar('game2048')">🎲 2048</button>
             <button class="sidebar-item" data-game="gomoku" onclick="selectGameFromSidebar('gomoku')">⚫ 五子棋</button>
-            <button class="sidebar-item" data-game="breakout" onclick="selectGameFromSidebar('breakout')">🧱 打砖块</button>
+            <button class="sidebar-item" data-game="breakout" onclick="selectGameFromSidebar('breakout')">🏓 打砖块</button>
             <button class="sidebar-item" data-game="memory" onclick="selectGameFromSidebar('memory')">🃏 记忆翻牌</button>
             <button class="sidebar-item" data-game="sokoban" onclick="selectGameFromSidebar('sokoban')">📦 推箱子</button>
         </div>
@@ -1109,7 +1217,7 @@
             <button class="game-btn" onclick="showGame('minesweeper')">💣 扫雷</button>
             <button class="game-btn" onclick="showGame('game2048')">🎲 2048</button>
             <button class="game-btn" onclick="showGame('gomoku')">⚫ 五子棋</button>
-            <button class="game-btn" onclick="showGame('breakout')">🧱 打砖块</button>
+            <button class="game-btn" onclick="showGame('breakout')">🏓 打砖块</button>
             <button class="game-btn" onclick="showGame('memory')">🃏 记忆翻牌</button>
             <button class="game-btn" onclick="showGame('sokoban')">📦 推箱子</button>
         </div>
@@ -1356,26 +1464,32 @@
 
         <!-- ========== 推箱子 ========== -->
         <div id="sokoban" class="game-area">
-            <div class="difficulty-selector" id="sokoban-level-selector">
-                <button class="diff-btn active" onclick="setSokobanLevel(0)">第1关</button>
-                <button class="diff-btn" onclick="setSokobanLevel(1)">第2关</button>
-                <button class="diff-btn" onclick="setSokobanLevel(2)">第3关</button>
-                <button class="diff-btn" onclick="setSokobanLevel(3)">第4关</button>
-                <button class="diff-btn" onclick="setSokobanLevel(4)">第5关</button>
-            </div>
             <div class="control-panel">
                 <button class="ctrl-btn start-btn" onclick="newSokobanGame()">新游戏</button>
                 <button class="ctrl-btn hint-btn" onclick="undoSokoban()">↩ 撤销</button>
                 <button class="ctrl-btn reset-btn" onclick="resetSokoban()">重置</button>
             </div>
             <div class="info-panel">
-                <div>📊 关卡: <span id="sokoban-level">1</span></div>
+                <div>📊 关卡: <span id="sokoban-level">1</span>/15</div>
                 <div>👣 步数: <span id="sokoban-moves">0</span></div>
                 <div>🎯 完成: <span id="sokoban-targets">0/0</span></div>
             </div>
             <div class="sokoban-wrapper">
-                <div class="sokoban-grid-wrapper">
-                    <div class="sokoban-grid" id="sokoban-grid"></div>
+                <div class="sokoban-main">
+                    <div class="sokoban-grid-wrapper">
+                        <div class="sokoban-grid" id="sokoban-grid"></div>
+                    </div>
+                    <!-- 关卡选择抽屉 -->
+                    <div class="sokoban-drawer" id="sokoban-drawer">
+                        <div class="drawer-section sokoban-levels" id="drawer-levels">
+                            <h3>🗂️ 选择关卡</h3>
+                            <div class="level-grid" id="level-grid"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 关卡选择悬浮按钮 -->
+                <div class="sokoban-drawer-controls">
+                    <button class="drawer-btn" id="toggle-levels-btn" onclick="toggleSokobanDrawer()">📋</button>
                 </div>
                 <div class="controls-hint">方向键或 WASD 移动 | Ctrl+Z 撤销</div>
                 <div class="dpad" id="sokoban-dpad">
@@ -1395,7 +1509,7 @@
         <div class="modal-content" id="modal-content">
             <h2 id="modal-title"></h2>
             <p id="modal-msg"></p>
-            <button class="modal-btn" onclick="closeModal()">再来一局</button>
+            <button class="modal-btn" onclick="closeModal()">继续</button>
         </div>
     </div>
 
@@ -1430,7 +1544,7 @@ const gameIcons = {
     minesweeper: '💣',
     game2048: '🎲',
     gomoku: '⚫',
-    breakout: '🧱',
+    breakout: '🏓',
     memory: '🃏',
     sokoban: '📦'
 };
@@ -1668,22 +1782,24 @@ const rulesData = {
         <h3>💡 技巧</h3>
         <p>尽量记住已翻开卡片的位置，减少无效翻牌，挑战最少步数通关！</p>
     `,
-    sokoban: `
+        sokoban: `
         <h3>🎯 游戏目标</h3>
-        <p>控制工人将所有箱子推到金色目标点上，完成所有目标即可过关！</p>
+        <p>控制工人将所有箱子推到金色目标点上，完成所有目标即可过关！共15关。</p>
         <h3>🎮 操作方式</h3>
         <ul>
             <li>电脑：方向键 ↑↓←→ 或 WASD 移动，Ctrl+Z 撤销</li>
             <li>手机：点击屏幕下方的十字方向键</li>
+            <li>点击右侧 📋 按钮选择关卡</li>
         </ul>
         <h3>⭐ 游戏规则</h3>
         <ul>
             <li>工人只能推箱子，不能拉箱子</li>
             <li>一次只能推动一个箱子</li>
             <li>箱子推到墙角就无法再移动，注意避免死局</li>
+            <li>通关后自动进入下一关</li>
         </ul>
         <h3>💡 技巧</h3>
-        <p>善用撤销功能回退步数。推箱子前想好退路，避免将箱子推到角落或靠墙的位置！</p>
+        <p>善用撤销功能回退步数。推箱子前想好退路，避免将箱子推到角落或靠墙的位置！绿色边框表示已通关。</p>
     `
 };
 
@@ -1864,8 +1980,9 @@ function resetSnake() {
     initSnake(); drawSnake();
 }
 
+// ===== 贪吃蛇方向键 =====
 function handleDpad(e, dir) {
-    e.preventDefault();
+    if (e.cancelable) e.preventDefault();  // 修复：防止 passive 事件报错
     if (snakePaused) return;
     const opposites = { up: 'down', down: 'up', left: 'right', right: 'left' };
     if (direction !== opposites[dir]) nextDirection = dir;
@@ -2049,8 +2166,9 @@ function hardDrop() {
     mergePiece(); clearLines(); spawnPiece(); drawTetris(); updateTetrisUI();
 }
 
+// ===== 俄罗斯方块按键 =====
 function handleTetrisBtn(e, action) {
-    e.preventDefault();
+    if (e.cancelable) e.preventDefault();  // 修复：防止 passive 事件报错
     if (!currentPiece || tetrisPaused) return;
     switch (action) {
         case 'left': if (!collision(currentPiece, -1, 0)) currentPiece.x--; break;
@@ -3365,48 +3483,162 @@ function updateMemoryUI() {
 
 // ==================== 推箱子 ====================
 const sokobanLevels = [
-    // Level 1
-    [
-        "#####",
-        "#@$.#",
-        "#####"
-    ],
-    // Level 2 (Microban classic)
-    [
-        "  #####",
-        "  #   #",
-        "  #$  #",
-        "###  .#",
-        "#  .@ #",
-        "#######"
-    ],
-    // Level 3
+    // Level 1 - 经典入门
     [
         " ####",
-        " #  #",
-        " #$.#",
-        "##  #",
-        "# .@#",
-        "#####"
+        " # .#",
+        "##  ###",
+        "# *@  #",
+        "#  $  #",
+        "##  ###",
+        " ####"
     ],
-    // Level 4
+    // Level 2 - 双箱子对称
     [
-        "#####",
-        "#.  #",
-        "# $ #",
-        "#.@ #",
-        "#.  #",
-        "#####"
+        "######",
+        "#    #",
+        "# #@ #",
+        "# $* #",
+        "# .* #",
+        "#    #",
+        "######"
     ],
-    // Level 5
+    // Level 3 - 走廊推箱
     [
         "  ####",
-        "  #  #",
-        "  #$ #",
-        "###  #",
-        "# .@ #",
-        "# .  #",
-        "######"
+        "###  ####",
+        "#     $ #",
+        "# #  #$ #",
+        "# . .#@ #",
+        "#########"
+    ],
+    // Level 4 - 紧凑四箱
+    [
+        "########",
+        "#      #",
+        "# .**$@#",
+        "#      #",
+        "#####  #",
+        "    ####"
+    ],
+    // Level 5 - 十字对称
+    [
+        " #######",
+        " #     #",
+        " # .$. #",
+        "## $@$ #",
+        "#  .$. #",
+        "#      #",
+        "########"
+    ],
+    // Level 6 - 三箱走廊
+    [
+        "###### #####",
+        "#    ###   #",
+        "# $$     #@#",
+        "# $ #...   #",
+        "#   ########",
+        "#####"
+    ],
+    // Level 7 - 六箱对称
+    [
+        "#######",
+        "#     #",
+        "# .$. #",
+        "# $.$ #",
+        "# .$. #",
+        "# $.$ #",
+        "#  @  #",
+        "#######"
+    ],
+    // Level 8 - 长走廊
+    [
+        "  ######",
+        "  # ..@#",
+        "  # $$ #",
+        "  ## ###",
+        "   # #",
+        "   # #",
+        "#### #",
+        "#    ##",
+        "# #   #",
+        "#   # #",
+        "###   #",
+        "  #####"
+    ],
+    // Level 9 - 角落双箱
+    [
+        "#####",
+        "#.  ##",
+        "#@$$ #",
+        "##   #",
+        " ##  #",
+        "  ##.#",
+        "   ###"
+    ],
+    // Level 10 - 三箱长条
+    [
+        "      #####",
+        "      #.  #",
+        "      #.# #",
+        "#######.# #",
+        "# @ $ $ $ #",
+        "# # # # ###",
+        "#       #",
+        "#########"
+    ],
+    // Level 11 - 双通道
+    [
+        "  ######",
+        "  #    #",
+        "  # ##@##",
+        "### # $ #",
+        "# ..# $ #",
+        "#       #",
+        "#  ######",
+        "####"
+    ],
+    // Level 12 - 角落挑战
+    [
+        "#####",
+        "#   ##",
+        "# $  #",
+        "## $ ####",
+        " ###@.  #",
+        "  #  .# #",
+        "  #     #",
+        "  #######"
+    ],
+    // Level 13 - 多目标分散
+    [
+        "####",
+        "#. ##",
+        "#.@ #",
+        "#. $#",
+        "##$ ###",
+        " # $  #",
+        " #    #",
+        " #  ###",
+        " ####"
+    ],
+    // Level 14 - 迷宫双箱
+    [
+        "#######",
+        "#     #",
+        "# # # #",
+        "#. $*@#",
+        "#   ###",
+        "#####"
+    ],
+    // Level 15 - 长走廊双箱
+    [
+        "     ###",
+        "######@##",
+        "#    .* #",
+        "#   #   #",
+        "#####$# #",
+        "    #   #",
+        "    #####"
     ]
 ];
 
@@ -3418,12 +3650,17 @@ let sokobanTargets = [];
 let sokobanMoves = 0;
 let sokobanHistory = [];
 let sokobanGameOver = false;
+let sokobanCompleted = JSON.parse(localStorage.getItem('sokobanCompleted') || '[]');
 
 function setSokobanLevel(level) {
+    if (level < 0 || level >= sokobanLevels.length) return;
     sokobanLevel = level;
-    const btns = document.querySelectorAll('#sokoban-level-selector .diff-btn');
-    btns.forEach((b, i) => b.classList.toggle('active', i === level));
     newSokobanGame();
+    // 关闭抽屉
+    const drawer = document.getElementById('drawer-levels');
+    const btn = document.getElementById('toggle-levels-btn');
+    if (drawer) drawer.classList.remove('show');
+    if (btn) btn.classList.remove('active');
 }
 
 function parseSokobanLevel(levelIdx) {
@@ -3472,6 +3709,7 @@ function newSokobanGame() {
     sokobanGameOver = false;
     updateSokobanUI();
     renderSokoban();
+    renderLevelGrid();
 }
 
 function resetSokoban() {
@@ -3498,7 +3736,8 @@ function moveSokobanPlayer(dr, dc) {
 
         sokobanHistory.push({
             player: { ...sokobanPlayer },
-            boxes: sokobanBoxes.map(b => ({ ...b }))
+            boxes: sokobanBoxes.map(b => ({ ...b })),
+            moves: sokobanMoves
         });
         sokobanBoxes[boxIdx] = { r: br, c: bc };
         sokobanPlayer = { r: nr, c: nc };
@@ -3506,7 +3745,8 @@ function moveSokobanPlayer(dr, dc) {
     } else {
         sokobanHistory.push({
             player: { ...sokobanPlayer },
-            boxes: sokobanBoxes.map(b => ({ ...b }))
+            boxes: sokobanBoxes.map(b => ({ ...b })),
+            moves: sokobanMoves
         });
         sokobanPlayer = { r: nr, c: nc };
         sokobanMoves++;
@@ -3521,7 +3761,7 @@ function undoSokoban() {
     const state = sokobanHistory.pop();
     sokobanPlayer = state.player;
     sokobanBoxes = state.boxes;
-    sokobanMoves = Math.max(0, sokobanMoves - 1);
+    sokobanMoves = state.moves;
     sokobanGameOver = false;
     renderSokoban();
     updateSokobanUI();
@@ -3533,7 +3773,23 @@ function checkSokobanWin() {
     );
     if (allOnTarget) {
         sokobanGameOver = true;
-        showModal('🎉 恭喜通关！', `关卡 ${sokobanLevel + 1} 完成！步数: ${sokobanMoves}`, true);
+        // 标记关卡完成
+        if (!sokobanCompleted.includes(sokobanLevel)) {
+            sokobanCompleted.push(sokobanLevel);
+            localStorage.setItem('sokobanCompleted', JSON.stringify(sokobanCompleted));
+        }
+        renderLevelGrid();
+        
+        // 自动跳到下一关
+        if (sokobanLevel < sokobanLevels.length - 1) {
+            setTimeout(() => {
+                sokobanLevel++;
+                newSokobanGame();
+            }, 1500);
+            showModal('🎉 恭喜通关！', `关卡 ${sokobanLevel + 1} 完成！步数: ${sokobanMoves}\n即将进入下一关...`, true);
+        } else {
+            showModal('🎉 全部通关！', `恭喜完成所有 ${sokobanLevels.length} 个关卡！\n总步数: ${sokobanMoves}`, true);
+        }
     }
 }
 
@@ -3542,7 +3798,7 @@ function renderSokoban() {
     grid.innerHTML = '';
     const rows = sokobanMap.length;
     const cols = sokobanMap[0].length;
-    grid.style.gridTemplateColumns = `repeat(${cols}, clamp(28px, 7vw, 36px))`;
+    grid.style.gridTemplateColumns = `repeat(${cols}, clamp(28px, 7vw, 40px))`;
 
     for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
@@ -3550,15 +3806,15 @@ function renderSokoban() {
             cell.className = 'sokoban-cell';
             const isWall = sokobanMap[r][c] === '#';
             const isTarget = sokobanMap[r][c] === '.';
-            const boxHere = sokobanBoxes.find(b => b.r === r && b.c === c);
+            const boxHere = sokobanBoxes.findIndex(b => b.r === r && b.c === c);
             const playerHere = sokobanPlayer.r === r && sokobanPlayer.c === c;
 
             if (isWall) {
                 cell.classList.add('wall');
-            } else if (boxHere && isTarget) {
+            } else if (boxHere !== -1 && isTarget) {
                 cell.classList.add('box-on-target');
                 cell.textContent = '✓';
-            } else if (boxHere) {
+            } else if (boxHere !== -1) {
                 cell.classList.add('box');
                 cell.textContent = '📦';
             } else if (playerHere && isTarget) {
@@ -3579,21 +3835,70 @@ function renderSokoban() {
 }
 
 function updateSokobanUI() {
-    document.getElementById('sokoban-level').textContent = sokobanLevel + 1;
-    document.getElementById('sokoban-moves').textContent = sokobanMoves;
+    const levelEl = document.getElementById('sokoban-level');
+    const movesEl = document.getElementById('sokoban-moves');
+    const targetsEl = document.getElementById('sokoban-targets');
+    if (levelEl) levelEl.textContent = sokobanLevel + 1;
+    if (movesEl) movesEl.textContent = sokobanMoves;
     const completed = sokobanBoxes.filter(b =>
         sokobanTargets.some(t => t.r === b.r && t.c === b.c)
     ).length;
-    document.getElementById('sokoban-targets').textContent = `${completed}/${sokobanTargets.length}`;
+    if (targetsEl) targetsEl.textContent = `${completed}/${sokobanTargets.length}`;
 }
 
+function renderLevelGrid() {
+    const grid = document.getElementById('level-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    
+    for (let i = 0; i < sokobanLevels.length; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'level-btn';
+        btn.textContent = i + 1;
+        if (i === sokobanLevel) btn.classList.add('active');
+        if (sokobanCompleted.includes(i)) btn.classList.add('completed');
+        btn.onclick = () => setSokobanLevel(i);
+        grid.appendChild(btn);
+    }
+}
+
+function toggleSokobanDrawer() {
+    const section = document.getElementById('drawer-levels');
+    const btn = document.getElementById('toggle-levels-btn');
+    
+    section.classList.toggle('show');
+    btn.classList.toggle('active');
+
+    if (section.classList.contains('show')) {
+        setTimeout(() => {
+            document.addEventListener('touchstart', closeSokobanDrawerOnOutside, { passive: false });
+            document.addEventListener('mousedown', closeSokobanDrawerOnOutside);
+        }, 50);
+    } else {
+        document.removeEventListener('touchstart', closeSokobanDrawerOnOutside);
+        document.removeEventListener('mousedown', closeSokobanDrawerOnOutside);
+    }
+}
+
+function closeSokobanDrawerOnOutside(e) {
+    const drawer = document.getElementById('drawer-levels');
+    const btn = document.getElementById('toggle-levels-btn');
+    
+    if (!drawer.contains(e.target) && !btn.contains(e.target)) {
+        drawer.classList.remove('show');
+        btn.classList.remove('active');
+        document.removeEventListener('touchstart', closeSokobanDrawerOnOutside);
+        document.removeEventListener('mousedown', closeSokobanDrawerOnOutside);
+    }
+}
+
+// ===== 推箱子方向键 =====
 function handleSokobanDpad(e, dir) {
-    e.preventDefault();
+    if (e.cancelable) e.preventDefault();  // 修复：防止 passive 事件报错
     const dirs = { up: [-1, 0], down: [1, 0], left: [0, -1], right: [0, 1] };
     const [dr, dc] = dirs[dir];
     moveSokobanPlayer(dr, dc);
 }
-
 document.addEventListener('keydown', (e) => {
     if (currentGame !== 'sokoban') return;
     switch (e.key) {

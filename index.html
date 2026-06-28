@@ -19,24 +19,59 @@
             margin: 0 auto;
             padding: 12px;
         }
+
+        /* 顶部栏 */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            position: relative;
+        }
+        .menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: #00d4ff;
+            font-size: 1.6em;
+            cursor: pointer;
+            padding: 4px 8px;
+            z-index: 110;
+        }
+        .help-btn {
+            display: none;
+            background: rgba(0, 212, 255, 0.15);
+            border: 2px solid rgba(0, 212, 255, 0.4);
+            color: #00d4ff;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 1.2em;
+            cursor: pointer;
+            z-index: 110;
+            transition: all 0.3s;
+        }
+        .help-btn:active { transform: scale(0.9); background: #00d4ff; color: #1a1a2e; }
+
         h1 {
             text-align: center;
             font-size: 1.8em;
-            margin-bottom: 6px;
             text-shadow: 0 0 15px rgba(0, 200, 255, 0.5);
             background: linear-gradient(90deg, #00d4ff, #c77dff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            flex: 1;
         }
         .subtitle {
             text-align: center;
             color: #aaa;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             font-size: 0.9em;
+            transition: all 0.3s;
         }
 
-        /* 游戏选择器 */
+        /* 桌面端游戏选择器 */
         .game-selector {
             display: flex;
             justify-content: center;
@@ -60,6 +95,69 @@
             background: #00d4ff;
             color: #1a1a2e;
             box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
+        }
+
+        /* 移动端侧边栏 */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 120;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .sidebar-overlay.show { display: block; opacity: 1; }
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0;
+            width: 220px;
+            height: 100%;
+            background: linear-gradient(180deg, #1a1a3e 0%, #16213e 100%);
+            border-right: 2px solid rgba(0, 212, 255, 0.3);
+            z-index: 130;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            padding: 60px 16px 20px;
+            overflow-y: auto;
+        }
+        .sidebar.open { transform: translateX(0); }
+        .sidebar-title {
+            font-size: 1.1em;
+            color: #00d4ff;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+        }
+        .sidebar-item {
+            display: block;
+            width: 100%;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            background: rgba(0, 212, 255, 0.08);
+            border: 1px solid rgba(0, 212, 255, 0.25);
+            color: #00d4ff;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1em;
+            text-align: left;
+            transition: all 0.2s;
+        }
+        .sidebar-item:active, .sidebar-item.active {
+            background: #00d4ff;
+            color: #1a1a2e;
+            transform: scale(0.98);
+        }
+        .sidebar-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            color: #aaa;
+            font-size: 1.5em;
+            cursor: pointer;
         }
 
         /* 游戏区域 */
@@ -172,7 +270,6 @@
         .sudoku-cell.fixed { color: #aaa; background: #1a1a3a; }
         .sudoku-cell.selected { background: #4a4a8a; box-shadow: inset 0 0 0 2px #00d4ff; }
         .sudoku-cell.error { color: #ff4444; }
-        .sudoku-cell.highlight { background: #3a3a5a; }
         .sudoku-cell:nth-child(3n) { border-right: 2px solid #555; }
         .sudoku-cell:nth-child(9n) { border-right: 1px solid #444; }
         .sudoku-cell:nth-child(n+19):nth-child(-n+27),
@@ -227,7 +324,6 @@
         }
         .snake-info span { color: #00ff88; }
 
-        /* 虚拟方向键 */
         .dpad {
             display: none;
             grid-template-columns: repeat(3, 60px);
@@ -247,6 +343,7 @@
             justify-content: center;
             transition: all 0.15s;
             user-select: none;
+            touch-action: manipulation;
         }
         .dpad-btn:active { background: #00ff88; color: #0a0a1a; transform: scale(0.92); }
         .dpad-btn.empty { visibility: hidden; }
@@ -296,7 +393,6 @@
         .tetris-info p { margin: 6px 0; }
         .tetris-info span { color: #ff6b6b; font-weight: bold; }
 
-        /* 俄罗斯方块虚拟按键 */
         .tetris-controls {
             display: none;
             grid-template-columns: repeat(3, 1fr);
@@ -315,6 +411,7 @@
             cursor: pointer;
             transition: all 0.15s;
             user-select: none;
+            touch-action: manipulation;
         }
         .tetris-btn:active { background: #ff6b6b; color: #1a0a1a; transform: scale(0.95); }
         .tetris-btn.drop { grid-column: span 3; background: rgba(255, 107, 107, 0.25); }
@@ -410,13 +507,6 @@
         }
         .flag-toggle.active::after { left: 25px; }
 
-        .mine-actions {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
         /* ===== 模态框 ===== */
         .modal {
             display: none;
@@ -438,12 +528,12 @@
             border: 2px solid #00d4ff;
             box-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
             max-width: 90%;
-            width: 320px;
+            width: 340px;
         }
-        .modal-content h2 { font-size: 1.8em; margin-bottom: 12px; }
+        .modal-content h2 { font-size: 1.6em; margin-bottom: 12px; }
         .modal-content.win h2 { color: #28a745; }
         .modal-content.lose h2 { color: #dc3545; }
-        .modal-content p { font-size: 1em; margin-bottom: 20px; color: #ccc; }
+        .modal-content p { font-size: 0.95em; margin-bottom: 20px; color: #ccc; line-height: 1.6; }
         .modal-btn {
             padding: 10px 28px;
             font-size: 1em;
@@ -457,7 +547,20 @@
         }
         .modal-btn:active { transform: scale(0.95); }
 
-        /* 提示文字 */
+        /* 规则弹窗 */
+        .rules-modal .modal-content {
+            text-align: left;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .rules-modal .modal-content h2 { text-align: center; color: #00d4ff; }
+        .rules-modal .modal-content h3 { color: #c77dff; margin: 14px 0 6px; font-size: 1em; }
+        .rules-modal .modal-content p, .rules-modal .modal-content li {
+            color: #ccc; font-size: 0.9em; line-height: 1.7; margin-bottom: 6px;
+        }
+        .rules-modal .modal-content ul { padding-left: 18px; margin-bottom: 10px; }
+        .rules-modal .modal-content .modal-btn { display: block; margin: 20px auto 0; }
+
         .controls-hint {
             text-align: center;
             color: #888;
@@ -465,12 +568,13 @@
             margin-top: 4px;
         }
 
-        /* 移动端显示虚拟按键 */
+        /* 移动端适配 */
         @media (max-width: 768px) {
             .container { padding: 8px; }
-            h1 { font-size: 1.5em; }
+            .menu-btn, .help-btn { display: block; }
+            .game-selector { display: none; }
+            h1 { font-size: 1.3em; }
             .subtitle { font-size: 0.8em; margin-bottom: 12px; }
-            .game-btn { padding: 6px 12px; font-size: 0.8em; }
             .diff-btn { padding: 5px 10px; font-size: 0.75em; }
             .ctrl-btn { padding: 6px 14px; font-size: 0.8em; min-width: 70px; }
             .info-panel { font-size: 0.85em; gap: 12px; }
@@ -479,8 +583,6 @@
             .tetris-controls { display: grid; }
             .tetris-side { flex-direction: row; flex-wrap: wrap; justify-content: center; }
         }
-
-        /* 小屏幕进一步优化 */
         @media (max-width: 400px) {
             .sudoku-grid { max-width: 100%; }
             .dpad { grid-template-columns: repeat(3, 52px); grid-template-rows: repeat(3, 52px); }
@@ -491,10 +593,27 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎮 经典游戏合集</h1>
-        <p class="subtitle">选择游戏，挑战不同难度！</p>
+        <!-- 移动端侧边栏 -->
+        <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+        <div class="sidebar" id="sidebar">
+            <button class="sidebar-close" onclick="closeSidebar()">✕</button>
+            <div class="sidebar-title">🎮 选择游戏</div>
+            <button class="sidebar-item active" data-game="sudoku" onclick="selectGameFromSidebar('sudoku')">🧩 数独</button>
+            <button class="sidebar-item" data-game="snake" onclick="selectGameFromSidebar('snake')">🐍 贪吃蛇</button>
+            <button class="sidebar-item" data-game="tetris" onclick="selectGameFromSidebar('tetris')">🟦 俄罗斯方块</button>
+            <button class="sidebar-item" data-game="minesweeper" onclick="selectGameFromSidebar('minesweeper')">💣 扫雷</button>
+        </div>
 
-        <div class="game-selector">
+        <!-- 顶部栏 -->
+        <div class="top-bar">
+            <button class="menu-btn" id="menu-btn" onclick="openSidebar()">☰</button>
+            <h1>经典游戏合集</h1>
+            <button class="help-btn" id="help-btn" onclick="showRules()">?</button>
+        </div>
+        <p class="subtitle" id="subtitle">选择游戏，挑战不同难度！</p>
+
+        <!-- 桌面端游戏选择器 -->
+        <div class="game-selector" id="desktop-selector">
             <button class="game-btn active" onclick="showGame('sudoku')">🧩 数独</button>
             <button class="game-btn" onclick="showGame('snake')">🐍 贪吃蛇</button>
             <button class="game-btn" onclick="showGame('tetris')">🟦 俄罗斯方块</button>
@@ -553,14 +672,13 @@
             <div class="snake-wrapper">
                 <canvas id="snake-canvas" class="snake-canvas" width="400" height="400"></canvas>
                 <div class="controls-hint">方向键 ↑↓←→ 或 WASD 控制 | 空格暂停</div>
-                <!-- 移动端虚拟方向键 -->
                 <div class="dpad" id="snake-dpad">
                     <div class="dpad-btn empty"></div>
-                    <button class="dpad-btn" ontouchstart="snakeSetDir('up')" onclick="snakeSetDir('up')">▲</button>
+                    <button class="dpad-btn" ontouchstart="handleDpad(event,'up')">▲</button>
                     <div class="dpad-btn empty"></div>
-                    <button class="dpad-btn" ontouchstart="snakeSetDir('left')" onclick="snakeSetDir('left')">◀</button>
-                    <button class="dpad-btn" ontouchstart="snakeSetDir('down')" onclick="snakeSetDir('down')">▼</button>
-                    <button class="dpad-btn" ontouchstart="snakeSetDir('right')" onclick="snakeSetDir('right')">▶</button>
+                    <button class="dpad-btn" ontouchstart="handleDpad(event,'left')">◀</button>
+                    <button class="dpad-btn" ontouchstart="handleDpad(event,'down')">▼</button>
+                    <button class="dpad-btn" ontouchstart="handleDpad(event,'right')">▶</button>
                 </div>
             </div>
         </div>
@@ -594,13 +712,12 @@
                     </div>
                 </div>
                 <div class="controls-hint">←→ 移动 | ↑ 旋转 | ↓ 加速 | 空格直接落底</div>
-                <!-- 移动端虚拟按键 -->
                 <div class="tetris-controls" id="tetris-controls">
-                    <button class="tetris-btn" ontouchstart="tetrisAction('left')" onclick="tetrisAction('left')">◀ 左移</button>
-                    <button class="tetris-btn" ontouchstart="tetrisAction('rotate')" onclick="tetrisAction('rotate')">↻ 旋转</button>
-                    <button class="tetris-btn" ontouchstart="tetrisAction('right')" onclick="tetrisAction('right')">右移 ▶</button>
-                    <button class="tetris-btn" ontouchstart="tetrisAction('down')" onclick="tetrisAction('down')">▼ 加速</button>
-                    <button class="tetris-btn drop" ontouchstart="tetrisAction('drop')" onclick="tetrisAction('drop')">⬇ 直接落底</button>
+                    <button class="tetris-btn" ontouchstart="handleTetrisBtn(event,'left')">◀ 左移</button>
+                    <button class="tetris-btn" ontouchstart="handleTetrisBtn(event,'rotate')">↻ 旋转</button>
+                    <button class="tetris-btn" ontouchstart="handleTetrisBtn(event,'right')">右移 ▶</button>
+                    <button class="tetris-btn" ontouchstart="handleTetrisBtn(event,'down')">▼ 加速</button>
+                    <button class="tetris-btn drop" ontouchstart="handleTetrisBtn(event,'drop')">⬇ 直接落底</button>
                 </div>
             </div>
         </div>
@@ -644,19 +761,54 @@
         </div>
     </div>
 
+    <!-- 规则说明弹窗 -->
+    <div class="modal rules-modal" id="rules-modal">
+        <div class="modal-content">
+            <h2 id="rules-title">📖 游戏规则</h2>
+            <div id="rules-body"></div>
+            <button class="modal-btn" onclick="closeRules()">知道了</button>
+        </div>
+    </div>
+
 <script>
 // ==================== 通用功能 ====================
 let currentGame = 'sudoku';
+const gameNames = {
+    sudoku: '🧩 数独',
+    snake: '🐍 贪吃蛇',
+    tetris: '🟦 俄罗斯方块',
+    minesweeper: '💣 扫雷'
+};
+
 let timerInterval = null;
 let seconds = 0;
+
+function openSidebar() {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('sidebar-overlay').classList.add('show');
+}
+function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('show');
+}
+
+function selectGameFromSidebar(game) {
+    showGame(game);
+    document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+    document.querySelector(`.sidebar-item[data-game="${game}"]`).classList.add('active');
+    closeSidebar();
+}
 
 function showGame(game) {
     document.querySelectorAll('.game-area').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.game-btn').forEach(el => el.classList.remove('active'));
     document.getElementById(game).classList.add('active');
-    event.target.classList.add('active');
+    const btn = document.querySelector(`.game-btn[onclick="showGame('${game}')"]`);
+    if (btn) btn.classList.add('active');
     currentGame = game;
     stopTimer();
+    // 更新副标题
+    document.getElementById('subtitle').textContent = gameNames[game];
 }
 
 function startTimer(displayId) {
@@ -693,6 +845,92 @@ function closeModal() {
     else if (currentGame === 'snake') resetSnake();
     else if (currentGame === 'tetris') resetTetris();
     else if (currentGame === 'minesweeper') newMineGame();
+}
+
+// ==================== 规则说明 ====================
+const rulesData = {
+    sudoku: `
+        <h3>🎯 游戏目标</h3>
+        <p>在 9×9 的格子中填入数字 1-9，使每行、每列、每个 3×3 宫格内的数字都不重复。</p>
+        <h3>🎮 操作方式</h3>
+        <ul>
+            <li>点击空白格子选中，再点击下方数字按钮填入</li>
+            <li>也可直接使用键盘数字键输入，Backspace 删除</li>
+            <li>灰色数字为固定提示，不可修改</li>
+            <li>红色数字表示与规则冲突</li>
+        </ul>
+        <h3>⭐ 难度说明</h3>
+        <ul>
+            <li><b>简单</b>：移除 35 个数字</li>
+            <li><b>中等</b>：移除 45 个数字</li>
+            <li><b>困难</b>：移除 55 个数字</li>
+            <li><b>专家</b>：移除 64 个数字</li>
+        </ul>
+    `,
+    snake: `
+        <h3>🎯 游戏目标</h3>
+        <p>控制小蛇吃掉食物，不断变长，不要撞到墙壁或自己的身体！</p>
+        <h3>🎮 操作方式</h3>
+        <ul>
+            <li>电脑：方向键 ↑↓←→ 或 WASD 控制方向，空格键暂停</li>
+            <li>手机：点击屏幕下方的十字方向键</li>
+        </ul>
+        <h3>⭐ 难度说明</h3>
+        <ul>
+            <li><b>简单</b>：速度较慢，适合新手</li>
+            <li><b>中等</b>：正常速度</li>
+            <li><b>困难</b>：速度较快</li>
+            <li><b>疯狂</b>：极速挑战</li>
+        </ul>
+        <h3>💡 技巧</h3>
+        <p>每吃一个食物得 10 分，蛇身会增长一格。合理规划路线，给自己留足空间！</p>
+    `,
+    tetris: `
+        <h3>🎯 游戏目标</h3>
+        <p>控制下落的方块，填满整行即可消除得分。不要让方块堆到顶部！</p>
+        <h3>🎮 操作方式</h3>
+        <ul>
+            <li>电脑：←→ 移动，↑ 旋转，↓ 加速下落，空格直接落底</li>
+            <li>手机：点击下方虚拟按键操作</li>
+        </ul>
+        <h3>⭐ 计分规则</h3>
+        <ul>
+            <li>消除 1 行：100 × 等级</li>
+            <li>消除 2 行：300 × 等级</li>
+            <li>消除 3 行：500 × 等级</li>
+            <li>消除 4 行：800 × 等级</li>
+        </ul>
+        <h3>💡 技巧</h3>
+        <p>尽量保持底部平整，预留竖条（I型方块）的位置可以一次消除4行获得高分！</p>
+    `,
+    minesweeper: `
+        <h3>🎯 游戏目标</h3>
+        <p>找出所有安全的格子，避开地雷。揭开所有非雷格子即可获胜！</p>
+        <h3>🎮 操作方式</h3>
+        <ul>
+            <li>左键点击揭开格子</li>
+            <li>右键点击标记旗帜（手机可开启标记模式或长按）</li>
+            <li>数字表示周围 8 格中地雷的数量</li>
+        </ul>
+        <h3>⭐ 难度说明</h3>
+        <ul>
+            <li><b>简单</b>：9×9 格子，10 颗雷</li>
+            <li><b>中等</b>：16×16 格子，40 颗雷</li>
+            <li><b>困难</b>：16×30 格子，99 颗雷</li>
+        </ul>
+        <h3>💡 技巧</h3>
+        <p>首次点击永远不会踩到雷。当数字周围已标记的旗帜数等于该数字时，可以尝试揭开其余格子。</p>
+    `
+};
+
+function showRules() {
+    document.getElementById('rules-title').textContent = '📖 ' + gameNames[currentGame] + ' 规则';
+    document.getElementById('rules-body').innerHTML = rulesData[currentGame];
+    document.getElementById('rules-modal').classList.add('show');
+}
+
+function closeRules() {
+    document.getElementById('rules-modal').classList.remove('show');
 }
 
 // ==================== 数独 ====================
@@ -857,7 +1095,8 @@ function resetSnake() {
     initSnake(); drawSnake();
 }
 
-function snakeSetDir(dir) {
+function handleDpad(e, dir) {
+    e.preventDefault();
     if (snakePaused) return;
     const opposites = { up: 'down', down: 'up', left: 'right', right: 'left' };
     if (direction !== opposites[dir]) nextDirection = dir;
@@ -915,10 +1154,10 @@ function gameOverSnake() {
 document.addEventListener('keydown', (e) => {
     if (currentGame !== 'snake') return;
     switch (e.key) {
-        case 'ArrowUp': case 'w': case 'W': snakeSetDir('up'); break;
-        case 'ArrowDown': case 's': case 'S': snakeSetDir('down'); break;
-        case 'ArrowLeft': case 'a': case 'A': snakeSetDir('left'); break;
-        case 'ArrowRight': case 'd': case 'D': snakeSetDir('right'); break;
+        case 'ArrowUp': case 'w': case 'W': handleDpad({preventDefault:()=>{}}, 'up'); break;
+        case 'ArrowDown': case 's': case 'S': handleDpad({preventDefault:()=>{}}, 'down'); break;
+        case 'ArrowLeft': case 'a': case 'A': handleDpad({preventDefault:()=>{}}, 'left'); break;
+        case 'ArrowRight': case 'd': case 'D': handleDpad({preventDefault:()=>{}}, 'right'); break;
         case ' ': e.preventDefault(); pauseSnake(); break;
     }
 });
@@ -1022,7 +1261,8 @@ function hardDrop() {
     mergePiece(); clearLines(); spawnPiece(); drawTetris(); updateTetrisUI();
 }
 
-function tetrisAction(action) {
+function handleTetrisBtn(e, action) {
+    e.preventDefault();
     if (!currentPiece || tetrisPaused) return;
     switch (action) {
         case 'left': if (!collision(currentPiece, -1, 0)) currentPiece.x--; break;
@@ -1078,11 +1318,11 @@ function gameOverTetris() {
 document.addEventListener('keydown', (e) => {
     if (currentGame !== 'tetris' || !currentPiece || tetrisPaused) return;
     switch (e.key) {
-        case 'ArrowLeft': tetrisAction('left'); break;
-        case 'ArrowRight': tetrisAction('right'); break;
-        case 'ArrowUp': tetrisAction('rotate'); break;
-        case 'ArrowDown': tetrisAction('down'); break;
-        case ' ': e.preventDefault(); tetrisAction('drop'); break;
+        case 'ArrowLeft': handleTetrisBtn({preventDefault:()=>{}}, 'left'); break;
+        case 'ArrowRight': handleTetrisBtn({preventDefault:()=>{}}, 'right'); break;
+        case 'ArrowUp': handleTetrisBtn({preventDefault:()=>{}}, 'rotate'); break;
+        case 'ArrowDown': handleTetrisBtn({preventDefault:()=>{}}, 'down'); break;
+        case ' ': e.preventDefault(); handleTetrisBtn({preventDefault:()=>{}}, 'drop'); break;
     }
 });
 

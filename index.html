@@ -68,12 +68,11 @@
             gap: 10px;
         }
         h1 .game-icon {
-            font-size: 1em; /* 图标大小随文字 */
-            -webkit-background-clip: unset; /* 取消背景裁剪 */
-            background-clip: unset; /* 取消背景裁剪 */
-            -webkit-text-fill-color: initial; /* 恢复默认颜色渲染，让Emoji显示彩色 */
+            font-size: 1em;
+            -webkit-background-clip: unset;
+            background-clip: unset;
+            -webkit-text-fill-color: initial;
         }
-
 
         /* 桌面端游戏选择器 */
         .game-selector {
@@ -365,7 +364,7 @@
             align-items: flex-start;
             justify-content: center;
             flex-wrap: wrap;
-            position: relative; /* 为抽屉定位 */
+            position: relative;
         }
         .tetris-canvas {
             border: 3px solid #ff6b6b;
@@ -400,7 +399,7 @@
 
         /* 移动端抽屉面板 */
         .tetris-drawer {
-            display: none; /* 默认隐藏，移动端显示 */
+            display: none;
             position: absolute;
             right: 0;
             top: 0;
@@ -409,29 +408,29 @@
             z-index: 10;
             flex-direction: column;
             gap: 8px;
-            pointer-events: none; /* 避免隐藏时拦截点击 */
+            pointer-events: none;
         }
 
         .drawer-section {
-            background: transparent; /* 完全透明背景 */
-            border: none; /* 移除边框 */
+            background: transparent;
+            border: none;
             border-radius: 10px;
             padding: 8px;
-            transform: translateX(calc(100% + 15px)); /* 默认隐藏在按钮右侧，留出按钮的距离 */
-            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease; /* 添加平滑弹性动画 */
+            transform: translateX(calc(100% + 15px));
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease;
             opacity: 0;
             pointer-events: auto;
         }
         .drawer-section.show {
-            transform: translateX(0); /* 弹出到对齐位置 */
+            transform: translateX(0);
             opacity: 1;
         }
 
-        /* 移动端抽屉控制按钮 - 改为侧边漂浮 */
+        /* 移动端抽屉控制按钮 */
         .drawer-controls {
-            display: none; /* 默认隐藏，移动端显示 */
+            display: none;
             position: absolute;
-            right: -5px; /* 紧贴右侧边缘 */
+            right: -5px;
             top: 50%;
             transform: translateY(-50%);
             flex-direction: column;
@@ -582,6 +581,65 @@
         }
         .flag-toggle.active::after { left: 25px; }
 
+        /* ===== 2048 ===== */
+        .game2048-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        .game2048-grid {
+            display: grid;
+            gap: 8px;
+            background: #3a3a3a;
+            padding: 8px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 400px;
+            aspect-ratio: 1;
+            touch-action: none;
+            position: relative;
+        }
+        .game2048-cell {
+            background: #4a4a4a;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            font-weight: bold;
+            color: #fff;
+            position: absolute;
+            width: calc(25% - 10px);
+            height: calc(25% - 10px);
+            /* 修改移动动画速度，从0.15s改为0.3s */
+            transition: transform 0.3s ease-in-out;
+        }
+        .game2048-cell[data-val="2"] { background: #eee4da; color: #776e65; }
+        .game2048-cell[data-val="4"] { background: #ede0c8; color: #776e65; }
+        .game2048-cell[data-val="8"] { background: #f2b179; color: #f9f6f2; }
+        .game2048-cell[data-val="16"] { background: #f59563; color: #f9f6f2; }
+        .game2048-cell[data-val="32"] { background: #f67c5f; color: #f9f6f2; }
+        .game2048-cell[data-val="64"] { background: #f65e3b; color: #f9f6f2; }
+        .game2048-cell[data-val="128"] { background: #edcf72; color: #f9f6f2; }
+        .game2048-cell[data-val="256"] { background: #edcc61; color: #f9f6f2; }
+        .game2048-cell[data-val="512"] { background: #edc850; color: #f9f6f2; }
+        .game2048-cell[data-val="1024"] { background: #edc53f; color: #f9f6f2; }
+        .game2048-cell[data-val="2048"] { background: #edc22e; color: #f9f6f2; }
+        .game2048-cell.new {
+            /* 修改新生成方块动画速度，从0.2s改为0.3s */
+            animation: pop 0.3s ease-in-out;
+        }
+        .game2048-cell.merged {
+            /* 修改合并方块动画速度，从0.2s改为0.3s */
+            animation: pop 0.3s ease-in-out;
+        }
+        @keyframes pop {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
         /* ===== 模态框 ===== */
         .modal {
             display: none;
@@ -658,16 +716,16 @@
             
             .dpad { 
                 display: grid; 
-                grid-template-columns: repeat(3, 72px); /* 从60px增大到72px */
-                grid-template-rows: repeat(3, 72px);    /* 从60px增大到72px */
-                gap: 6px;                               /* 间距稍微加大 */
+                grid-template-columns: repeat(3, 72px);
+                grid-template-rows: repeat(3, 72px);
+                gap: 6px;
                 margin-top: 8px; 
             }
             .dpad-btn { 
-                font-size: 1.8em;                       /* 从1.5em增大到1.8em */
+                font-size: 1.8em;
             }
 
-            /* 俄罗斯方块移动端紧凑布局 - 放大优化与抽屉 */
+            /* 俄罗斯方块移动端紧凑布局 */
             .tetris-wrapper { gap: 8px; }
             .tetris-main {
                 position: relative;
@@ -681,14 +739,14 @@
                 aspect-ratio: 1 / 2;
             }
             .tetris-side {
-                display: none; /* 移动端隐藏桌面侧边栏 */
+                display: none;
             }
             .tetris-drawer {
-                display: flex; /* 移动端启用抽屉 */
+                display: flex;
             }
 
             .drawer-controls {
-                display: flex; /* 移动端启用侧边漂浮按钮 */
+                display: flex;
             }
 
             .next-canvas {
@@ -709,17 +767,28 @@
                 font-size: 1.2em;
                 border-radius: 10px;
             }
+
+            /* 2048移动端适配 */
+            .game2048-grid {
+                gap: 6px;
+                padding: 6px;
+            }
+            .game2048-cell {
+                font-size: 1.5em;
+                width: calc(25% - 8px);
+                height: calc(25% - 8px);
+            }
         }
 
         @media (max-width: 400px) {
             .sudoku-grid { max-width: 100%; }
 
             .dpad { 
-                grid-template-columns: repeat(3, 64px); /* 从52px增大到64px */
-                grid-template-rows: repeat(3, 64px);    /* 从52px增大到64px */
+                grid-template-columns: repeat(3, 64px);
+                grid-template-rows: repeat(3, 64px);
             }
             .dpad-btn { 
-                font-size: 1.6em;                       /* 从1.3em增大到1.6em */
+                font-size: 1.6em;
             }
 
             .tetris-canvas {
@@ -727,7 +796,7 @@
             }
 
             .drawer-controls {
-                right: -5px; /* 极小屏幕也紧贴右侧 */
+                right: -5px;
             }
 
             .next-canvas {
@@ -741,8 +810,18 @@
                 padding: 14px 6px;
                 font-size: 1.1em;
             }
-        }
 
+            /* 2048小屏幕适配 */
+            .game2048-grid {
+                gap: 4px;
+                padding: 4px;
+            }
+            .game2048-cell {
+                font-size: 1.2em;
+                width: calc(25% - 6px);
+                height: calc(25% - 6px);
+            }
+        }
     </style>
 </head>
 <body>
@@ -756,6 +835,7 @@
             <button class="sidebar-item" data-game="snake" onclick="selectGameFromSidebar('snake')">🐍 贪吃蛇</button>
             <button class="sidebar-item" data-game="tetris" onclick="selectGameFromSidebar('tetris')">🧱 俄罗斯方块</button>
             <button class="sidebar-item" data-game="minesweeper" onclick="selectGameFromSidebar('minesweeper')">💣 扫雷</button>
+            <button class="sidebar-item" data-game="game2048" onclick="selectGameFromSidebar('game2048')">🎲 2048</button>
         </div>
 
         <!-- 顶部栏 -->
@@ -771,6 +851,7 @@
             <button class="game-btn" onclick="showGame('snake')">🐍 贪吃蛇</button>
             <button class="game-btn" onclick="showGame('tetris')">🧱 俄罗斯方块</button>
             <button class="game-btn" onclick="showGame('minesweeper')">💣 扫雷</button>
+            <button class="game-btn" onclick="showGame('game2048')">🎲 2048</button>
         </div>
 
         <!-- ========== 数独 ========== -->
@@ -924,6 +1005,27 @@
                 <div class="controls-hint">左键揭开 | 右键标记 | 或开启上方标记模式</div>
             </div>
         </div>
+
+        <!-- ========== 2048 ========== -->
+        <div id="game2048" class="game-area">
+            <div class="difficulty-selector">
+                <button class="diff-btn active" onclick="set2048Diff('easy')">简单 3×3</button>
+                <button class="diff-btn" onclick="set2048Diff('medium')">中等 4×4</button>
+                <button class="diff-btn" onclick="set2048Diff('hard')">困难 5×5</button>
+            </div>
+            <div class="control-panel">
+                <button class="ctrl-btn start-btn" onclick="newGame2048()">新游戏</button>
+                <button class="ctrl-btn reset-btn" onclick="resetGame2048()">重置</button>
+            </div>
+            <div class="info-panel">
+                <div>🏆 得分: <span id="game2048-score">0</span></div>
+                <div>📊 最高: <span id="game2048-high">0</span></div>
+            </div>
+            <div class="game2048-wrapper">
+                <div class="game2048-grid" id="game2048-grid"></div>
+                <div class="controls-hint">滑动屏幕或使用方向键移动方块</div>
+            </div>
+        </div>
     </div>
 
     <!-- 游戏结束弹窗 -->
@@ -951,15 +1053,16 @@ const gameNames = {
     sudoku: '数独',
     snake: '贪吃蛇',
     tetris: '俄罗斯方块',
-    minesweeper: '扫雷'
+    minesweeper: '扫雷',
+    game2048: '2048'
 };
 const gameIcons = {
     sudoku: '🔢',
     snake: '🐍',
     tetris: '🧱',
-    minesweeper: '💣'
+    minesweeper: '💣',
+    game2048: '🎲'
 };
-
 
 let timerInterval = null;
 let seconds = 0;
@@ -1028,6 +1131,7 @@ function closeModal() {
     else if (currentGame === 'snake') resetSnake();
     else if (currentGame === 'tetris') resetTetris();
     else if (currentGame === 'minesweeper') newMineGame();
+    else if (currentGame === 'game2048') newGame2048();
 }
 
 // ==================== 规则说明 ====================
@@ -1103,6 +1207,24 @@ const rulesData = {
         </ul>
         <h3>💡 技巧</h3>
         <p>首次点击永远不会踩到雷。当数字周围已标记的旗帜数等于该数字时，可以尝试揭开其余格子。</p>
+    `,
+    game2048: `
+        <h3>🎯 游戏目标</h3>
+        <p>通过滑动合并相同数字的方块，最终合成 2048 方块！</p>
+        <h3>🎮 操作方式</h3>
+        <ul>
+            <li>电脑：使用方向键 ↑↓←→ 移动方块</li>
+            <li>手机：在游戏区域滑动手指移动方块</li>
+        </ul>
+        <h3>⭐ 游戏规则</h3>
+        <ul>
+            <li>每次移动，所有方块都会向移动方向滑动</li>
+            <li>相同数字的方块相撞时会合并成一个新方块</li>
+            <li>每次移动后，会在空白处随机生成一个新方块</li>
+            <li>当棋盘填满且无法移动时，游戏结束</li>
+        </ul>
+        <h3>💡 技巧</h3>
+        <p>尽量保持大数字在角落，小数字在旁边，合理规划移动顺序！</p>
     `
 };
 
@@ -1257,7 +1379,7 @@ function initSnake() {
     snake = [{ x: 10, y: 10 }];
     direction = 'right'; nextDirection = 'right';
     snakeScore = 0; snakePaused = false;
-    document.getElementById('snake-pause-btn').textContent = '暂停'; // 初始化按钮状态
+    document.getElementById('snake-pause-btn').textContent = '暂停';
     placeFood(); updateSnakeUI();
 }
 
@@ -1366,11 +1488,9 @@ let tetrisScore = 0, tetrisLines = 0, tetrisLevel = 1;
 let tetrisGameLoop = null, tetrisPaused = false, tetrisDiff = 'easy';
 const tetrisDiffConfig = { easy: 800, medium: 500, hard: 300, insane: 150 };
 
-// 动态计算方块大小，适配移动端放大后的Canvas
 function getTetrisBlockSize() {
     const isMobile = window.innerWidth <= 768;
     if (isMobile) {
-        // 获取Canvas实际渲染的CSS宽度并除以列数来计算方块大小
         const displayWidth = tetrisCanvas.clientWidth || 300;
         return Math.floor(displayWidth / TETRIS_COLS);
     }
@@ -1391,7 +1511,7 @@ function setTetrisDiff(diff) {
 function initTetris() {
     board = Array(TETRIS_ROWS).fill().map(() => Array(TETRIS_COLS).fill(0));
     tetrisScore = 0; tetrisLines = 0; tetrisLevel = 1; tetrisPaused = false;
-    document.getElementById('tetris-pause-btn').textContent = '暂停'; // 初始化按钮状态
+    document.getElementById('tetris-pause-btn').textContent = '暂停';
     nextPiece = createPiece(); spawnPiece(); updateTetrisUI();
 }
 
@@ -1486,7 +1606,6 @@ function handleTetrisBtn(e, action) {
 function drawTetris() {
     const bs = getTetrisBlockSize();
     const w = TETRIS_COLS * bs, h = TETRIS_ROWS * bs;
-    // 确保canvas内部尺寸匹配
     if (tetrisCanvas.width !== w || tetrisCanvas.height !== h) {
         tetrisCanvas.width = w; tetrisCanvas.height = h;
     }
@@ -1507,7 +1626,6 @@ function drawTetris() {
 }
 
 function drawNext() {
-    // 抽屉里的 Canvas (移动端)
     const mobileCanvas = document.getElementById('next-canvas');
     if (mobileCanvas) {
         const mCtx = mobileCanvas.getContext('2d');
@@ -1528,11 +1646,10 @@ function drawNext() {
         }
     }
 
-    // 桌面端侧边栏的 Canvas
     const desktopCanvas = document.getElementById('next-canvas-desktop');
     if (desktopCanvas) {
         const dCtx = desktopCanvas.getContext('2d');
-        const bs = 25; // 桌面端固定大小
+        const bs = 25;
         const size = 6 * bs;
         if (desktopCanvas.width !== size || desktopCanvas.height !== size) {
             desktopCanvas.width = size; desktopCanvas.height = size;
@@ -1551,7 +1668,6 @@ function drawNext() {
 }
 
 function updateTetrisUI() {
-    // 移动端抽屉内的数据
     const scoreEl = document.getElementById('tetris-score');
     const linesEl = document.getElementById('tetris-lines');
     const levelEl = document.getElementById('tetris-level');
@@ -1559,7 +1675,6 @@ function updateTetrisUI() {
     if(linesEl) linesEl.textContent = tetrisLines;
     if(levelEl) levelEl.textContent = tetrisLevel;
 
-    // 桌面端侧边栏内的数据
     const scoreDesktopEl = document.getElementById('tetris-score-desktop');
     const linesDesktopEl = document.getElementById('tetris-lines-desktop');
     const levelDesktopEl = document.getElementById('tetris-level-desktop');
@@ -1584,7 +1699,6 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// 窗口大小变化时重绘
 window.addEventListener('resize', () => {
     if (currentGame === 'tetris') { 
         drawTetris(); 
@@ -1592,27 +1706,22 @@ window.addEventListener('resize', () => {
     }
 });
 
-// 移动端俄罗斯方块抽屉控制
 function toggleTetrisDrawer(type) {
     const section = document.getElementById(type === 'next' ? 'drawer-next' : 'drawer-info');
     const btn = document.getElementById(type === 'next' ? 'toggle-next-btn' : 'toggle-info-btn');
     
-    // 切换当前面板状态
     section.classList.toggle('show');
     btn.classList.toggle('active');
 
-    // 检查是否有面板处于展开状态
     const anyOpen = document.getElementById('drawer-next').classList.contains('show') || 
                     document.getElementById('drawer-info').classList.contains('show');
 
     if (anyOpen) {
-        // 延迟添加监听，防止当前点击事件立刻触发关闭
         setTimeout(() => {
             document.addEventListener('touchstart', closeDrawerOnOutsideClick, { passive: false });
             document.addEventListener('mousedown', closeDrawerOnOutsideClick);
         }, 50);
     } else {
-        // 如果全部收起，移除监听
         document.removeEventListener('touchstart', closeDrawerOnOutsideClick);
         document.removeEventListener('mousedown', closeDrawerOnOutsideClick);
     }
@@ -1622,17 +1731,14 @@ function closeDrawerOnOutsideClick(e) {
     const nextBtn = document.getElementById('toggle-next-btn');
     const infoBtn = document.getElementById('toggle-info-btn');
 
-    // 只有点击按钮时才关闭面板
     if (nextBtn.contains(e.target)) {
         toggleTetrisDrawer('next');
     } else if (infoBtn.contains(e.target)) {
         toggleTetrisDrawer('info');
     }
-    // 移除事件监听器，避免重复绑定
     document.removeEventListener('touchstart', closeDrawerOnOutsideClick);
     document.removeEventListener('mousedown', closeDrawerOnOutsideClick);
 }
-
 
 // ==================== 扫雷 ====================
 let mineBoard = [], mineRevealed = [], mineFlagged = [];
@@ -1758,11 +1864,264 @@ function renderMineGrid() {
     }
 }
 
+// ==================== 2048 ====================
+let game2048Grid = [], game2048Score = 0, game2048High = localStorage.getItem('game2048High') || 0;
+let game2048Size = 4, game2048Diff = 'medium';
+const game2048DiffConfig = { easy: 3, medium: 4, hard: 5 };
+document.getElementById('game2048-high').textContent = game2048High;
+
+function set2048Diff(diff) {
+    game2048Diff = diff;
+    game2048Size = game2048DiffConfig[diff];
+    document.querySelectorAll('#game2048 .diff-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    newGame2048();
+}
+
+function newGame2048() {
+    game2048Grid = Array(game2048Size).fill().map(() => Array(game2048Size).fill(0));
+    game2048Score = 0;
+    updateGame2048UI();
+    addRandomTile();
+    addRandomTile();
+    renderGame2048();
+}
+
+function resetGame2048() {
+    newGame2048();
+}
+
+function addRandomTile() {
+    const emptyCells = [];
+    for (let r = 0; r < game2048Size; r++) {
+        for (let c = 0; c < game2048Size; c++) {
+            if (game2048Grid[r][c] === 0) emptyCells.push({ r, c });
+        }
+    }
+    if (emptyCells.length === 0) return false;
+    const { r, c } = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+    game2048Grid[r][c] = Math.random() < 0.9 ? 2 : 4;
+    return true;
+}
+
+function renderGame2048() {
+    const gridEl = document.getElementById('game2048-grid');
+    gridEl.innerHTML = '';
+    
+    for (let r = 0; r < game2048Size; r++) {
+        for (let c = 0; c < game2048Size; c++) {
+            if (game2048Grid[r][c] !== 0) {
+                const cell = document.createElement('div');
+                cell.className = 'game2048-cell';
+                cell.textContent = game2048Grid[r][c];
+                cell.setAttribute('data-val', game2048Grid[r][c]);
+                
+                // 计算位置
+                const cellSize = 100 / game2048Size;
+                const gap = 8;
+                const padding = 8;
+                const position = {
+                    left: `${c * cellSize + padding / cellSize}%`,
+                    top: `${r * cellSize + padding / cellSize}%`
+                };
+                
+                cell.style.left = position.left;
+                cell.style.top = position.top;
+                cell.style.width = `calc(${cellSize}% - ${gap}px)`;
+                cell.style.height = `calc(${cellSize}% - ${gap}px)`;
+                
+                gridEl.appendChild(cell);
+            }
+        }
+    }
+}
+
+function updateGame2048UI() {
+    document.getElementById('game2048-score').textContent = game2048Score;
+    document.getElementById('game2048-high').textContent = game2048High;
+}
+
+function moveGame2048(direction) {
+    let moved = false;
+    const newGrid = game2048Grid.map(row => [...row]);
+    const mergedPositions = [];
+    
+    if (direction === 'left' || direction === 'right') {
+        for (let r = 0; r < game2048Size; r++) {
+            let row = newGrid[r].filter(val => val !== 0);
+            if (direction === 'right') row.reverse();
+            
+            for (let i = 0; i < row.length - 1; i++) {
+                if (row[i] === row[i + 1]) {
+                    row[i] *= 2;
+                    game2048Score += row[i];
+                    row.splice(i + 1, 1);
+                    // 记录合并位置
+                    const col = direction === 'right' ? game2048Size - 1 - i : i;
+                    mergedPositions.push({ r, c: col });
+                }
+            }
+            
+            while (row.length < game2048Size) row.push(0);
+            if (direction === 'right') row.reverse();
+            
+            if (row.join(',') !== newGrid[r].join(',')) moved = true;
+            newGrid[r] = row;
+        }
+    } else {
+        for (let c = 0; c < game2048Size; c++) {
+            let col = [];
+            for (let r = 0; r < game2048Size; r++) col.push(newGrid[r][c]);
+            col = col.filter(val => val !== 0);
+            
+            if (direction === 'down') col.reverse();
+            
+            for (let i = 0; i < col.length - 1; i++) {
+                if (col[i] === col[i + 1]) {
+                    col[i] *= 2;
+                    game2048Score += col[i];
+                    col.splice(i + 1, 1);
+                    // 记录合并位置
+                    const row = direction === 'down' ? game2048Size - 1 - i : i;
+                    mergedPositions.push({ r: row, c });
+                }
+            }
+            
+            while (col.length < game2048Size) col.push(0);
+            if (direction === 'down') col.reverse();
+            
+            for (let r = 0; r < game2048Size; r++) {
+                if (newGrid[r][c] !== col[r]) moved = true;
+                newGrid[r][c] = col[r];
+            }
+        }
+    }
+    
+    if (moved) {
+        game2048Grid = newGrid;
+        addRandomTile();
+        
+        // 先渲染所有方块
+        renderGame2048();
+        
+        // 为合并的方块添加动画类
+        const cells = document.querySelectorAll('.game2048-cell');
+        cells.forEach(cell => {
+            const cellRow = parseInt(cell.style.top) / (100 / game2048Size);
+            const cellCol = parseInt(cell.style.left) / (100 / game2048Size);
+            
+            if (mergedPositions.some(pos => pos.r === cellRow && pos.c === cellCol)) {
+                cell.classList.add('merged');
+                setTimeout(() => cell.classList.remove('merged'), 300);
+            }
+        });
+        
+        // 为新添加的方块添加动画类
+        const newCells = document.querySelectorAll('.game2048-cell.new');
+        newCells.forEach(cell => {
+            cell.classList.add('new');
+            setTimeout(() => cell.classList.remove('new'), 300);
+        });
+        
+        updateGame2048UI();
+        
+        if (game2048Score > game2048High) {
+            game2048High = game2048Score;
+            localStorage.setItem('game2048High', game2048High);
+            updateGame2048UI();
+        }
+        
+        checkWinGame2048();
+    }
+}
+
+function checkWinGame2048() {
+    for (let r = 0; r < game2048Size; r++) {
+        for (let c = 0; c < game2048Size; c++) {
+            if (game2048Grid[r][c] === 2048) {
+                showModal('🎉 恭喜通关！', `得分: ${game2048Score} | 难度: ${game2048Diff}`, true);
+                return;
+            }
+        }
+    }
+    
+    let canMove = false;
+    for (let r = 0; r < game2048Size; r++) {
+        for (let c = 0; c < game2048Size; c++) {
+            if (game2048Grid[r][c] === 0) {
+                canMove = true;
+                break;
+            }
+            if (c < game2048Size - 1 && game2048Grid[r][c] === game2048Grid[r][c + 1]) {
+                canMove = true;
+                break;
+            }
+            if (r < game2048Size - 1 && game2048Grid[r][c] === game2048Grid[r + 1][c]) {
+                canMove = true;
+                break;
+            }
+        }
+        if (canMove) break;
+    }
+    
+    if (!canMove) {
+        showModal('💥 游戏结束', `得分: ${game2048Score} | 难度: ${game2048Diff}`, false);
+    }
+}
+
+// 键盘控制
+document.addEventListener('keydown', (e) => {
+    if (currentGame !== 'game2048') return;
+    switch (e.key) {
+        case 'ArrowUp': moveGame2048('up'); break;
+        case 'ArrowDown': moveGame2048('down'); break;
+        case 'ArrowLeft': moveGame2048('left'); break;
+        case 'ArrowRight': moveGame2048('right'); break;
+    }
+});
+
+// 触摸控制
+let touchStartX = 0, touchStartY = 0;
+const game2048GridEl = document.getElementById('game2048-grid');
+
+game2048GridEl.addEventListener('touchstart', (e) => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    e.preventDefault();
+}, { passive: false });
+
+game2048GridEl.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+}, { passive: false });
+
+game2048GridEl.addEventListener('touchend', (e) => {
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+    
+    const dx = touchEndX - touchStartX;
+    const dy = touchEndY - touchStartY;
+    
+    if (Math.abs(dx) > Math.abs(dy)) {
+        if (Math.abs(dx) > 30) {
+            if (dx > 0) moveGame2048('right');
+            else moveGame2048('left');
+        }
+    } else {
+        if (Math.abs(dy) > 30) {
+            if (dy > 0) moveGame2048('down');
+            else moveGame2048('up');
+        }
+    }
+    e.preventDefault();
+}, { passive: false });
+
+
 // ==================== 初始化 ====================
 newSudoku();
 initSnake(); drawSnake();
 initTetris(); drawTetris();
 newMineGame();
+newGame2048();
 </script>
 </body>
 </html>

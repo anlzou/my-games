@@ -365,6 +365,7 @@
             align-items: flex-start;
             justify-content: center;
             flex-wrap: wrap;
+            position: relative; /* 为抽屉定位 */
         }
         .tetris-canvas {
             border: 3px solid #ff6b6b;
@@ -396,6 +397,68 @@
         }
         .tetris-info p { margin: 6px 0; }
         .tetris-info span { color: #ff6b6b; font-weight: bold; }
+
+        /* 移动端抽屉面板 */
+        .tetris-drawer {
+            display: none; /* 默认隐藏，移动端显示 */
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 110px;
+            z-index: 10;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none; /* 避免隐藏时拦截点击 */
+        }
+
+        .drawer-section {
+            background: transparent; /* 修改为完全透明背景 */
+            border: 2px solid rgba(255, 107, 107, 0.4);
+            border-radius: 10px;
+            padding: 8px;
+            transform: translateX(calc(100% + 15px)); /* 默认隐藏在按钮右侧，留出按钮的距离 */
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease; /* 添加平滑弹性动画 */
+            opacity: 0;
+            pointer-events: auto;
+        }
+        .drawer-section.show {
+            transform: translateX(0); /* 弹出到对齐位置 */
+            opacity: 1;
+        }
+
+        /* 移动端抽屉控制按钮 - 改为侧边漂浮 */
+        .drawer-controls {
+            display: none; /* 默认隐藏，移动端显示 */
+            position: absolute;
+            right: -5px; /* 紧贴右侧边缘 */
+            top: 50%;
+            transform: translateY(-50%);
+            flex-direction: column;
+            gap: 12px;
+            z-index: 15;
+        }
+        .drawer-btn {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            background: rgba(255, 107, 107, 0.2);
+            border: 2px solid rgba(255, 107, 107, 0.6);
+            color: #ff6b6b;
+            border-radius: 50%; /* 圆形按钮 */
+            font-size: 1.2em; /* 调整Emoji大小 */
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 10px rgba(255, 107, 107, 0.2);
+        }
+        .drawer-btn.active {
+            background: #ff6b6b;
+            color: #1a0a1a;
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.6);
+        }
 
         .tetris-controls {
             display: none;
@@ -599,66 +662,46 @@
                 font-size: 1.8em;                       /* 从1.5em增大到1.8em */
             }
 
-            /* 俄罗斯方块移动端紧凑布局 - 放大优化 */
+            /* 俄罗斯方块移动端紧凑布局 - 放大优化与抽屉 */
             .tetris-wrapper { gap: 8px; }
             .tetris-main {
-                flex-direction: column; /* 改为上下布局，让画布占满宽度 */
-                gap: 8px;
-                align-items: center;
+                position: relative;
+                gap: 0;
+                align-items: flex-start;
             }
             .tetris-canvas {
-                width: 100% !important;    /* 宽度占满容器 */
-                max-width: 350px !important; /* 限制最大宽度防止变形 */
-                height: auto !important;     /* 高度自适应 */
-                aspect-ratio: 1 / 2;        /* 保持 10:20 的宽高比 */
+                width: 100% !important;
+                max-width: 350px !important;
+                height: auto !important;
+                aspect-ratio: 1 / 2;
             }
             .tetris-side {
-                flex-direction: row; /* 改为横向排列 */
-                gap: 12px;
-                min-width: auto;
-                width: 100%;
-                max-width: 350px;
-                justify-content: center;
-                align-items: stretch;
+                display: none; /* 移动端隐藏桌面侧边栏 */
             }
-            .next-piece {
-                padding: 8px;
-                border-radius: 8px;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                flex: 1;
+            .tetris-drawer {
+                display: flex; /* 移动端启用抽屉 */
             }
-            .next-piece h3 {
-                font-size: 0.8em;
-                margin-bottom: 4px;
+
+            .drawer-controls {
+                display: flex; /* 移动端启用侧边漂浮按钮 */
             }
+
             .next-canvas {
-                width: 60px !important;
-                height: 60px !important;
+                width: 70px !important;
+                height: 70px !important;
             }
-            .tetris-info {
-                padding: 8px 12px;
-                font-size: 0.85em;
-                border-radius: 8px;
-                flex: 1.5;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-            }
-            .tetris-info p { margin: 2px 0; }
+            .tetris-info p { margin: 4px 0; font-size: 0.85em; }
 
             .tetris-controls {
                 display: grid;
                 gap: 8px;
-                max-width: 100%; /* 控制区宽度占满 */
+                max-width: 100%;
                 width: 100%;
                 margin-top: 4px;
             }
             .tetris-btn {
-                padding: 16px 8px; /* 增大按钮点击区域 */
-                font-size: 1.2em;  /* 字体放大 */
+                padding: 16px 8px;
+                font-size: 1.2em;
                 border-radius: 10px;
             }
         }
@@ -675,14 +718,16 @@
             }
 
             .tetris-canvas {
-                max-width: 100% !important; /* 极小屏幕继续撑满 */
+                max-width: 100% !important;
             }
-            .tetris-side {
-                max-width: 100%;
+
+            .drawer-controls {
+                right: -5px; /* 极小屏幕也紧贴右侧 */
             }
+
             .next-canvas {
-                width: 50px !important;
-                height: 50px !important;
+                width: 60px !important;
+                height: 60px !important;
             }
             .tetris-controls {
                 max-width: 100%;
@@ -802,18 +847,39 @@
             <div class="tetris-wrapper">
                 <div class="tetris-main">
                     <canvas id="tetris-canvas" class="tetris-canvas" width="300" height="600"></canvas>
-                    <div class="tetris-side">
-                        <div class="next-piece">
-                            <h3>下一个</h3>
+                    
+                    <!-- 移动端右侧抽屉面板 -->
+                    <div class="tetris-drawer" id="tetris-drawer">
+                        <div class="drawer-section next-piece" id="drawer-next">
                             <canvas id="next-canvas" class="next-canvas" width="120" height="120"></canvas>
                         </div>
-                        <div class="tetris-info">
+                        <div class="drawer-section tetris-info" id="drawer-info">
                             <p>🏆 得分: <span id="tetris-score">0</span></p>
                             <p>📊 行数: <span id="tetris-lines">0</span></p>
                             <p>🎯 等级: <span id="tetris-level">1</span></p>
                         </div>
                     </div>
                 </div>
+                
+                <!-- 桌面端显示的侧边栏 (移动端隐藏) -->
+                <div class="tetris-side">
+                    <div class="next-piece">
+                        <h3>下一个</h3>
+                        <canvas id="next-canvas-desktop" class="next-canvas" width="120" height="120"></canvas>
+                    </div>
+                    <div class="tetris-info">
+                        <p>🏆 得分: <span id="tetris-score-desktop">0</span></p>
+                        <p>📊 行数: <span id="tetris-lines-desktop">0</span></p>
+                        <p>🎯 等级: <span id="tetris-level-desktop">1</span></p>
+                    </div>
+                </div>
+
+                <!-- 移动端右侧抽屉控制按钮 -->
+                <div class="drawer-controls">
+                    <button class="drawer-btn" id="toggle-next-btn" onclick="toggleTetrisDrawer('next')">👁</button>
+                    <button class="drawer-btn" id="toggle-info-btn" onclick="toggleTetrisDrawer('info')">📊</button>
+                </div>
+
                 <div class="controls-hint">←→ 移动 | ↑ 旋转 | ↓ 加速 | 空格直接落底</div>
                 <div class="tetris-controls" id="tetris-controls">
                     <button class="tetris-btn" ontouchstart="handleTetrisBtn(event,'left')">◀ 左移</button>
@@ -1436,26 +1502,65 @@ function drawTetris() {
 }
 
 function drawNext() {
-    const bs = getNextBlockSize();
-    const size = 6 * bs;
-    if (nextCanvas.width !== size || nextCanvas.height !== size) {
-        nextCanvas.width = size; nextCanvas.height = size;
+    // 抽屉里的 Canvas (移动端)
+    const mobileCanvas = document.getElementById('next-canvas');
+    if (mobileCanvas) {
+        const mCtx = mobileCanvas.getContext('2d');
+        const bs = getNextBlockSize();
+        const size = 6 * bs;
+        if (mobileCanvas.width !== size || mobileCanvas.height !== size) {
+            mobileCanvas.width = size; mobileCanvas.height = size;
+        }
+        mCtx.fillStyle = '#1a0a0a'; mCtx.fillRect(0, 0, size, size);
+        if (nextPiece) {
+            const ox = (size - nextPiece.shape[0].length * bs) / 2;
+            const oy = (size - nextPiece.shape.length * bs) / 2;
+            mCtx.fillStyle = nextPiece.color; mCtx.shadowColor = nextPiece.color; mCtx.shadowBlur = 10;
+            nextPiece.shape.forEach((row, y) => row.forEach((cell, x) => {
+                if (cell) mCtx.fillRect(ox + x * bs + 1, oy + y * bs + 1, bs - 2, bs - 2);
+            }));
+            mCtx.shadowBlur = 0;
+        }
     }
-    nextCtx.fillStyle = '#1a0a0a'; nextCtx.fillRect(0, 0, size, size);
-    if (!nextPiece) return;
-    const ox = (size - nextPiece.shape[0].length * bs) / 2;
-    const oy = (size - nextPiece.shape.length * bs) / 2;
-    nextCtx.fillStyle = nextPiece.color; nextCtx.shadowColor = nextPiece.color; nextCtx.shadowBlur = 10;
-    nextPiece.shape.forEach((row, y) => row.forEach((cell, x) => {
-        if (cell) nextCtx.fillRect(ox + x * bs + 1, oy + y * bs + 1, bs - 2, bs - 2);
-    }));
-    nextCtx.shadowBlur = 0;
+
+    // 桌面端侧边栏的 Canvas
+    const desktopCanvas = document.getElementById('next-canvas-desktop');
+    if (desktopCanvas) {
+        const dCtx = desktopCanvas.getContext('2d');
+        const bs = 25; // 桌面端固定大小
+        const size = 6 * bs;
+        if (desktopCanvas.width !== size || desktopCanvas.height !== size) {
+            desktopCanvas.width = size; desktopCanvas.height = size;
+        }
+        dCtx.fillStyle = '#1a0a0a'; dCtx.fillRect(0, 0, size, size);
+        if (nextPiece) {
+            const ox = (size - nextPiece.shape[0].length * bs) / 2;
+            const oy = (size - nextPiece.shape.length * bs) / 2;
+            dCtx.fillStyle = nextPiece.color; dCtx.shadowColor = nextPiece.color; dCtx.shadowBlur = 10;
+            nextPiece.shape.forEach((row, y) => row.forEach((cell, x) => {
+                if (cell) dCtx.fillRect(ox + x * bs + 1, oy + y * bs + 1, bs - 2, bs - 2);
+            }));
+            dCtx.shadowBlur = 0;
+        }
+    }
 }
 
 function updateTetrisUI() {
-    document.getElementById('tetris-score').textContent = tetrisScore;
-    document.getElementById('tetris-lines').textContent = tetrisLines;
-    document.getElementById('tetris-level').textContent = tetrisLevel;
+    // 移动端抽屉内的数据
+    const scoreEl = document.getElementById('tetris-score');
+    const linesEl = document.getElementById('tetris-lines');
+    const levelEl = document.getElementById('tetris-level');
+    if(scoreEl) scoreEl.textContent = tetrisScore;
+    if(linesEl) linesEl.textContent = tetrisLines;
+    if(levelEl) levelEl.textContent = tetrisLevel;
+
+    // 桌面端侧边栏内的数据
+    const scoreDesktopEl = document.getElementById('tetris-score-desktop');
+    const linesDesktopEl = document.getElementById('tetris-lines-desktop');
+    const levelDesktopEl = document.getElementById('tetris-level-desktop');
+    if(scoreDesktopEl) scoreDesktopEl.textContent = tetrisScore;
+    if(linesDesktopEl) linesDesktopEl.textContent = tetrisLines;
+    if(levelDesktopEl) levelDesktopEl.textContent = tetrisLevel;
 }
 
 function gameOverTetris() {
@@ -1476,8 +1581,69 @@ document.addEventListener('keydown', (e) => {
 
 // 窗口大小变化时重绘
 window.addEventListener('resize', () => {
-    if (currentGame === 'tetris') { drawTetris(); drawNext(); }
+    if (currentGame === 'tetris') { 
+        drawTetris(); 
+        drawNext(); 
+    }
 });
+
+// 移动端俄罗斯方块抽屉控制
+function toggleTetrisDrawer(type) {
+    const section = document.getElementById(type === 'next' ? 'drawer-next' : 'drawer-info');
+    const btn = document.getElementById(type === 'next' ? 'toggle-next-btn' : 'toggle-info-btn');
+    
+    // 切换当前面板状态
+    section.classList.toggle('show');
+    btn.classList.toggle('active');
+
+    // 检查是否有面板处于展开状态
+    const anyOpen = document.getElementById('drawer-next').classList.contains('show') || 
+                    document.getElementById('drawer-info').classList.contains('show');
+
+    if (anyOpen) {
+        // 延迟添加监听，防止当前点击事件立刻触发关闭
+        setTimeout(() => {
+            document.addEventListener('touchstart', closeDrawerOnOutsideClick, { passive: false });
+            document.addEventListener('mousedown', closeDrawerOnOutsideClick);
+        }, 50);
+    } else {
+        // 如果全部收起，移除监听
+        document.removeEventListener('touchstart', closeDrawerOnOutsideClick);
+        document.removeEventListener('mousedown', closeDrawerOnOutsideClick);
+    }
+}
+
+function closeDrawerOnOutsideClick(e) {
+    const nextSection = document.getElementById('drawer-next');
+    const infoSection = document.getElementById('drawer-info');
+    const nextBtn = document.getElementById('toggle-next-btn');
+    const infoBtn = document.getElementById('toggle-info-btn');
+
+    // 判断点击目标是否在按钮或面板内
+    const isInside = nextBtn.contains(e.target) || infoBtn.contains(e.target) || 
+                     nextSection.contains(e.target) || infoSection.contains(e.target);
+
+    if (!isInside) {
+        let needRemoveListener = false;
+        
+        if (nextSection.classList.contains('show')) {
+            nextSection.classList.remove('show');
+            nextBtn.classList.remove('active');
+            needRemoveListener = true;
+        }
+        if (infoSection.classList.contains('show')) {
+            infoSection.classList.remove('show');
+            infoBtn.classList.remove('active');
+            needRemoveListener = true;
+        }
+
+        // 面板收回后，移除全局监听，恢复游戏正常操作
+        if (needRemoveListener) {
+            document.removeEventListener('touchstart', closeDrawerOnOutsideClick);
+            document.removeEventListener('mousedown', closeDrawerOnOutsideClick);
+        }
+    }
+}
 
 // ==================== 扫雷 ====================
 let mineBoard = [], mineRevealed = [], mineFlagged = [];

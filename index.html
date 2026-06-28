@@ -1162,7 +1162,7 @@
         /* 推箱子移动端适配 */
         @media (max-width: 768px) {
             .sokoban-grid-wrapper {
-                justify-content: flex-start;
+                justify-content: center; /* 修改：让网格居中对齐 */
             }
             .sokoban-drawer {
                 display: flex;
@@ -1173,14 +1173,33 @@
             .sokoban-main {
                 position: relative;
                 gap: 0;
+                justify-content: center; /* 新增：确保整个主区域居中 */
             }
         }
+
         @media (max-width: 400px) {
             .sokoban-cell {
                 width: clamp(24px, 6.5vw, 36px);
                 height: clamp(24px, 6.5vw, 36px);
                 font-size: clamp(0.8em, 3vw, 1.1em);
             }
+        }
+        
+        /* ===== 见缝插针 ===== */
+        .pinball-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        .pinball-canvas {
+            display: block;
+            border: 3px solid #ff9f43;
+            border-radius: 50%;
+            background: #1a1a2e;
+            max-width: 100%;
+            height: auto;
+            touch-action: none;
         }
     </style>
 </head>
@@ -1200,6 +1219,7 @@
             <button class="sidebar-item" data-game="breakout" onclick="selectGameFromSidebar('breakout')">🏓 打砖块</button>
             <button class="sidebar-item" data-game="memory" onclick="selectGameFromSidebar('memory')">🃏 记忆翻牌</button>
             <button class="sidebar-item" data-game="sokoban" onclick="selectGameFromSidebar('sokoban')">📦 推箱子</button>
+            <button class="sidebar-item" data-game="pinball" onclick="selectGameFromSidebar('pinball')">📌 见缝插针</button>
         </div>
 
         <!-- 顶部栏 -->
@@ -1220,6 +1240,7 @@
             <button class="game-btn" onclick="showGame('breakout')">🏓 打砖块</button>
             <button class="game-btn" onclick="showGame('memory')">🃏 记忆翻牌</button>
             <button class="game-btn" onclick="showGame('sokoban')">📦 推箱子</button>
+            <button class="game-btn" onclick="showGame('pinball')">📌 见缝插针</button>
         </div>
 
         <!-- ========== 数独 ========== -->
@@ -1464,7 +1485,12 @@
 
         <!-- ========== 推箱子 ========== -->
         <div id="sokoban" class="game-area">
-            <div class="control-panel">
+            <!-- 新增：隐藏的难度选择器占位，保持与贪吃蛇垂直间距对齐 -->
+            <div class="difficulty-selector" style="visibility: hidden; margin-bottom: 12px;">
+                <button class="diff-btn">占位</button>
+            </div>
+            <!-- 修改：添加 max-width 和 margin 使其水平居中对齐 -->
+            <div class="control-panel" style="max-width: 280px; margin-left: auto; margin-right: auto;">
                 <button class="ctrl-btn start-btn" onclick="newSokobanGame()">新游戏</button>
                 <button class="ctrl-btn hint-btn" onclick="undoSokoban()">↩ 撤销</button>
                 <button class="ctrl-btn reset-btn" onclick="resetSokoban()">重置</button>
@@ -1492,7 +1518,7 @@
                     <button class="drawer-btn" id="toggle-levels-btn" onclick="toggleSokobanDrawer()">📋</button>
                 </div>
                 <div class="controls-hint">方向键或 WASD 移动 | Ctrl+Z 撤销</div>
-                <div class="dpad" id="sokoban-dpad">
+                <div class="dpad" id="sokoban-dpad" style="margin: 8px auto 0;">
                     <div class="dpad-btn empty"></div>
                     <button class="dpad-btn" ontouchstart="handleSokobanDpad(event,'up')">▲</button>
                     <div class="dpad-btn empty"></div>
@@ -1502,6 +1528,28 @@
                 </div>
             </div>
         </div>
+
+        <!-- ========== 见缝插针 ========== -->
+        <div id="pinball" class="game-area">
+            <div class="difficulty-selector">
+                <button class="diff-btn active" onclick="setPinballDiff('easy')">简单</button>
+                <button class="diff-btn" onclick="setPinballDiff('medium')">中等</button>
+                <button class="diff-btn" onclick="setPinballDiff('hard')">困难</button>
+            </div>
+            <div class="control-panel">
+                <button class="ctrl-btn start-btn" onclick="startPinball()">开始</button>
+                <button class="ctrl-btn reset-btn" onclick="resetPinball()">重置</button>
+            </div>
+            <div class="info-panel">
+                <div>🎯 关卡: <span id="pinball-level">1</span></div>
+                <div>📌 剩余: <span id="pinball-left">0</span></div>
+            </div>
+            <div class="pinball-wrapper">
+                <canvas id="pinball-canvas" class="pinball-canvas" width="320" height="320"></canvas>
+                <div class="controls-hint">点击屏幕或按空格键插针</div>
+            </div>
+        </div>
+
     </div>
 
     <!-- 游戏结束弹窗 -->
@@ -1535,7 +1583,8 @@ const gameNames = {
     gomoku: '五子棋',
     breakout: '打砖块',
     memory: '记忆翻牌',
-    sokoban: '推箱子'
+    sokoban: '推箱子',
+    pinball: '见缝插针'
 };
 const gameIcons = {
     sudoku: '🔢',
@@ -1546,7 +1595,8 @@ const gameIcons = {
     gomoku: '⚫',
     breakout: '🏓',
     memory: '🃏',
-    sokoban: '📦'
+    sokoban: '📦',
+    pinball: '📌'
 };
 
 let timerInterval = null;
@@ -1594,6 +1644,9 @@ function showGame(game) {
     if (game === 'sokoban') {
         newSokobanGame();
     }
+    if (game === 'pinball') {
+        resetPinball();
+    }
 }
 
 
@@ -1636,6 +1689,7 @@ function closeModal() {
     else if (currentGame === 'breakout') resetBreakout();
     else if (currentGame === 'memory') newMemoryGame();
     else if (currentGame === 'sokoban') newSokobanGame();
+    else if (currentGame === 'pinball') resetPinball();
 }
 
 // ==================== 规则说明 ====================
@@ -1764,7 +1818,7 @@ const rulesData = {
         <h3>💡 技巧</h3>
         <p>球击中挡板不同位置会改变反弹角度，击中挡板边缘可获得更大角度！</p>
     `,
-        memory: `
+    memory: `
         <h3>🎯 游戏目标</h3>
         <p>翻开所有卡片，找出相同的图案配对。全部配对完成即可获胜！</p>
         <h3>🎮 操作方式</h3>
@@ -1782,7 +1836,7 @@ const rulesData = {
         <h3>💡 技巧</h3>
         <p>尽量记住已翻开卡片的位置，减少无效翻牌，挑战最少步数通关！</p>
     `,
-        sokoban: `
+    sokoban: `
         <h3>🎯 游戏目标</h3>
         <p>控制工人将所有箱子推到金色目标点上，完成所有目标即可过关！共15关。</p>
         <h3>🎮 操作方式</h3>
@@ -1800,6 +1854,22 @@ const rulesData = {
         </ul>
         <h3>💡 技巧</h3>
         <p>善用撤销功能回退步数。推箱子前想好退路，避免将箱子推到角落或靠墙的位置！绿色边框表示已通关。</p>
+    `,
+    pinball: `
+        <h3>🎯 游戏目标</h3>
+        <p>将所有的针插入旋转的圆盘中，且不能碰到已经插好的针！</p>
+        <h3>🎮 操作方式</h3>
+        <ul>
+            <li>点击屏幕或按空格键插针</li>
+        </ul>
+        <h3>⭐ 难度说明</h3>
+        <ul>
+            <li><b>简单</b>：圆盘转速较慢</li>
+            <li><b>中等</b>：圆盘转速适中</li>
+            <li><b>困难</b>：圆盘转速较快</li>
+        </ul>
+        <h3>💡 技巧</h3>
+        <p>观察圆盘的旋转速度和空隙，找准时机果断出手！每过一关，需要插入的针会变多，转速也会微增。</p>
     `
 };
 
@@ -3489,7 +3559,7 @@ const sokobanLevels = [
         " # .#",
         "##  ###",
         "# *@  #",
-        "#  $  #",
+        "#   $ #",
         "##  ###",
         " ####"
     ],
@@ -3912,6 +3982,182 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+// ==================== 见缝插针 ====================
+const pinballCanvas = document.getElementById('pinball-canvas');
+const pinCtx = pinballCanvas.getContext('2d');
+let pinballGameLoop = null, pinballDiff = 'easy';
+let pinballLevel = 1, pinballPins = [], pinballRemaining = 0, pinballAngle = 0;
+let pinballGameOver = false, pinballSpeed = 0.02;
+const pinballDiffConfig = { easy: 0.015, medium: 0.025, hard: 0.04 };
+const PIN_LENGTH = 40, PIN_RADIUS = 6, CENTER_R = 30;
+
+function setPinballDiff(diff) {
+    pinballDiff = diff;
+    pinballSpeed = pinballDiffConfig[diff];
+    document.querySelectorAll('#pinball .diff-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+}
+
+function initPinballLevel() {
+    pinballPins = [];
+    pinballGameOver = false;
+    pinballAngle = 0;
+    pinballRemaining = pinballLevel + 5; // 每关需要插的针数
+    updatePinballUI();
+}
+
+function startPinball() {
+    if (pinballGameLoop) cancelAnimationFrame(pinballGameLoop);
+    pinballLevel = 1;
+    pinballSpeed = pinballDiffConfig[pinballDiff];
+    initPinballLevel();
+    gameLoopPinball();
+}
+
+function resetPinball() {
+    if (pinballGameLoop) cancelAnimationFrame(pinballGameLoop);
+    pinballLevel = 1;
+    initPinballLevel();
+    drawPinball();
+}
+
+function insertPin() {
+    if (pinballGameOver || pinballRemaining <= 0) return;
+    
+    // 修复：将插入的绝对角度(-PI/2)转换为相对于圆盘的局部角度
+    let localAngle = -Math.PI / 2 - pinballAngle;
+    // 将角度规范到 [0, 2*PI) 范围内
+    localAngle = ((localAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+
+    // 碰撞检测：计算局部角度差
+    for (let pin of pinballPins) {
+        let diff = Math.abs(localAngle - pin.angle);
+        if (diff > Math.PI) diff = 2 * Math.PI - diff;
+        // 修复：稍微增大一点容差半径计算，让碰撞判定更合理
+        if (diff < (PIN_RADIUS * 2.5 / CENTER_R)) { 
+            pinballGameOver = true;
+            if (pinballGameLoop) cancelAnimationFrame(pinballGameLoop); // 停止动画循环
+            showModal('💥 游戏结束', `到达关卡: ${pinballLevel} | 难度: ${pinballDiff}`, false);
+            return;
+        }
+    }
+    
+    pinballPins.push({ angle: localAngle });
+    pinballRemaining--;
+    updatePinballUI();
+    
+    if (pinballRemaining === 0) {
+        // 通关
+        setTimeout(() => {
+            pinballLevel++;
+            pinballSpeed += 0.002; // 逐渐加速
+            initPinballLevel();
+            gameLoopPinball(); // 重新启动动画循环
+        }, 500);
+    }
+}
+
+function gameLoopPinball() {
+    if (pinballGameOver) return;
+    pinballAngle += pinballSpeed;
+    drawPinball();
+    pinballGameLoop = requestAnimationFrame(gameLoopPinball);
+}
+
+function drawPinball() {
+    const w = pinballCanvas.width, h = pinballCanvas.height;
+    const cx = w / 2, cy = h / 2;
+    
+    pinCtx.fillStyle = '#1a1a2e';
+    pinCtx.fillRect(0, 0, w, h);
+    
+    // 画中心圆盘
+    pinCtx.beginPath();
+    pinCtx.arc(cx, cy, CENTER_R, 0, Math.PI * 2);
+    pinCtx.fillStyle = '#2d3436';
+    pinCtx.fill();
+    pinCtx.strokeStyle = '#dfe6e9';
+    pinCtx.lineWidth = 2;
+    pinCtx.stroke();
+    
+    // 画关卡数字
+    pinCtx.fillStyle = '#dfe6e9';
+    pinCtx.font = 'bold 24px sans-serif';
+    pinCtx.textAlign = 'center';
+    pinCtx.textBaseline = 'middle';
+    pinCtx.fillText(pinballLevel, cx, cy);
+    
+    // 画已插的针 (随圆盘旋转)
+    pinCtx.save();
+    pinCtx.translate(cx, cy);
+    pinCtx.rotate(pinballAngle);
+    
+    pinballPins.forEach(pin => {
+        pinCtx.beginPath();
+        const startX = Math.cos(pin.angle) * CENTER_R;
+        const startY = Math.sin(pin.angle) * CENTER_R;
+        const endX = Math.cos(pin.angle) * (CENTER_R + PIN_LENGTH);
+        const endY = Math.sin(pin.angle) * (CENTER_R + PIN_LENGTH);
+        
+        pinCtx.moveTo(startX, startY);
+        pinCtx.lineTo(endX, endY);
+        pinCtx.strokeStyle = '#00d4ff';
+        pinCtx.lineWidth = 3;
+        pinCtx.stroke();
+        
+        // 针头
+        pinCtx.beginPath();
+        pinCtx.arc(endX, endY, PIN_RADIUS, 0, Math.PI * 2);
+        pinCtx.fillStyle = '#00d4ff';
+        pinCtx.fill();
+    });
+    
+    pinCtx.restore();
+    
+    // 画等待插入的针 (底部)
+    if (pinballRemaining > 0) {
+        const waitingX = cx;
+        const waitingY = h - 40;
+        
+        pinCtx.beginPath();
+        pinCtx.moveTo(waitingX, waitingY);
+        pinCtx.lineTo(waitingX, waitingY - PIN_LENGTH);
+        pinCtx.strokeStyle = '#ff9f43';
+        pinCtx.lineWidth = 3;
+        pinCtx.stroke();
+        
+        pinCtx.beginPath();
+        pinCtx.arc(waitingX, waitingY - PIN_LENGTH, PIN_RADIUS, 0, Math.PI * 2);
+        pinCtx.fillStyle = '#ff9f43';
+        pinCtx.fill();
+    }
+}
+
+function updatePinballUI() {
+    document.getElementById('pinball-level').textContent = pinballLevel;
+    document.getElementById('pinball-left').textContent = pinballRemaining;
+}
+
+// 事件监听
+document.addEventListener('keydown', (e) => {
+    if (currentGame !== 'pinball') return;
+    if (e.key === ' ') {
+        e.preventDefault();
+        insertPin();
+    }
+});
+
+pinballCanvas.addEventListener('click', () => {
+    if (currentGame !== 'pinball') return;
+    insertPin();
+});
+
+pinballCanvas.addEventListener('touchstart', (e) => {
+    if (currentGame !== 'pinball') return;
+    if (e.cancelable) e.preventDefault(); // 修复：安全地取消默认事件
+    insertPin();
+}, { passive: false }); // 修复：显式声明非被动监听，允许阻止默认行为
+
 // ==================== 初始化 ====================
 newSudoku();
 initSnake(); drawSnake();
@@ -3922,6 +4168,7 @@ newGomokuGame();
 resetBreakout();
 newMemoryGame();
 newSokobanGame();
+resetPinball();
 
 </script>
 </body>

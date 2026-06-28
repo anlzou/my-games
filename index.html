@@ -883,6 +883,52 @@
             flex-wrap: wrap;
         }
         .gomoku-stats span { color: #ffd700; font-weight: bold; }
+
+        /* ===== 打砖块 ===== */
+        .breakout-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        .breakout-canvas {
+            display: block;
+            border: 3px solid #00d4ff;
+            border-radius: 10px;
+            background: #0a0a1a;
+            max-width: 100%;
+            height: auto;
+            touch-action: none;
+        }
+        .breakout-controls {
+            display: none;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+            max-width: 320px;
+            margin-top: 4px;
+        }
+        .breakout-btn {
+            padding: 18px 10px;
+            background: rgba(0, 212, 255, 0.15);
+            border: 2px solid rgba(0, 212, 255, 0.4);
+            color: #00d4ff;
+            border-radius: 12px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.15s;
+            user-select: none;
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+        .breakout-btn:active { background: #00d4ff; color: #0a0a1a; transform: scale(0.95); }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .breakout-controls { display: grid; }
+        }
     </style>
 </head>
 <body>
@@ -898,6 +944,7 @@
             <button class="sidebar-item" data-game="minesweeper" onclick="selectGameFromSidebar('minesweeper')">💣 扫雷</button>
             <button class="sidebar-item" data-game="game2048" onclick="selectGameFromSidebar('game2048')">🎲 2048</button>
             <button class="sidebar-item" data-game="gomoku" onclick="selectGameFromSidebar('gomoku')">⚫ 五子棋</button>
+            <button class="sidebar-item" data-game="breakout" onclick="selectGameFromSidebar('breakout')">🧱 打砖块</button>
         </div>
 
         <!-- 顶部栏 -->
@@ -915,6 +962,7 @@
             <button class="game-btn" onclick="showGame('minesweeper')">💣 扫雷</button>
             <button class="game-btn" onclick="showGame('game2048')">🎲 2048</button>
             <button class="game-btn" onclick="showGame('gomoku')">⚫ 五子棋</button>
+            <button class="game-btn" onclick="showGame('breakout')">🧱 打砖块</button>
         </div>
 
         <!-- ========== 数独 ========== -->
@@ -1111,6 +1159,32 @@
                 </div>
             </div>
         </div>
+        <!-- ========== 打砖块 ========== -->
+        <div id="breakout" class="game-area">
+            <div class="difficulty-selector">
+                <button class="diff-btn active" onclick="setBreakoutDiff('easy')">简单</button>
+                <button class="diff-btn" onclick="setBreakoutDiff('medium')">中等</button>
+                <button class="diff-btn" onclick="setBreakoutDiff('hard')">困难</button>
+                <button class="diff-btn" onclick="setBreakoutDiff('insane')">疯狂</button>
+            </div>
+            <div class="control-panel">
+                <button class="ctrl-btn start-btn" onclick="startBreakout()">开始</button>
+                <button class="ctrl-btn pause-btn" id="breakout-pause-btn" onclick="pauseBreakout()">暂停</button>
+                <button class="ctrl-btn reset-btn" onclick="resetBreakout()">重置</button>
+            </div>
+            <div class="info-panel">
+                <div>🏆 得分: <span id="breakout-score">0</span></div>
+                <div>❤️ 生命: <span id="breakout-lives">3</span></div>
+            </div>
+            <div class="breakout-wrapper">
+                <canvas id="breakout-canvas" class="breakout-canvas" width="480" height="320"></canvas>
+                <div class="controls-hint">←→ 方向键或 A/D 移动挡板 | 空格暂停</div>
+                <div class="breakout-controls" id="breakout-controls">
+                    <button class="breakout-btn" id="breakout-btn-left">◀ 左移</button>
+                    <button class="breakout-btn" id="breakout-btn-right">右移 ▶</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- 游戏结束弹窗 -->
@@ -1141,7 +1215,8 @@ const gameNames = {
     tetris: '俄罗斯方块',
     minesweeper: '扫雷',
     game2048: '2048',
-    gomoku: '五子棋'
+    gomoku: '五子棋',
+    breakout: '打砖块'
 };
 const gameIcons = {
     sudoku: '🔢',
@@ -1149,7 +1224,8 @@ const gameIcons = {
     tetris: '🧱',
     minesweeper: '💣',
     game2048: '🎲',
-    gomoku: '⚫'
+    gomoku: '⚫',
+    breakout: '🧱'
 };
 
 let timerInterval = null;
@@ -1185,8 +1261,11 @@ function showGame(game) {
     document.getElementById('game-icon').textContent = gameIcons[game];
     
     // 初始化游戏
-    if (game === 'gomoku') {
+        if (game === 'gomoku') {
         newGomokuGame();
+    }
+    if (game === 'breakout') {
+        resetBreakout();
     }
 }
 
@@ -1227,6 +1306,7 @@ function closeModal() {
     else if (currentGame === 'minesweeper') newMineGame();
     else if (currentGame === 'game2048') newGame2048();
     else if (currentGame === 'gomoku') newGomokuGame();
+    else if (currentGame === 'breakout') resetBreakout();
 }
 
 // ==================== 规则说明 ====================
@@ -1336,6 +1416,24 @@ const rulesData = {
         </ul>
         <h3>💡 技巧</h3>
         <p>注意防守对方的活三，同时寻找自己的进攻机会。占据棋盘中心位置更有优势！</p>
+    `,
+    breakout: `
+        <h3>🎯 游戏目标</h3>
+        <p>控制挡板反弹小球，击碎所有砖块即可获胜！不要让球掉到底部。</p>
+        <h3>🎮 操作方式</h3>
+        <ul>
+            <li>电脑：←→ 方向键或 A/D 移动挡板，空格键暂停</li>
+            <li>手机：左右滑动屏幕或点击下方按钮移动挡板</li>
+        </ul>
+        <h3>⭐ 难度说明</h3>
+        <ul>
+            <li><b>简单</b>：球速较慢，适合新手</li>
+            <li><b>中等</b>：正常球速</li>
+            <li><b>困难</b>：球速较快</li>
+            <li><b>疯狂</b>：极速挑战</li>
+        </ul>
+        <h3>💡 技巧</h3>
+        <p>球击中挡板不同位置会改变反弹角度，击中挡板边缘可获得更大角度！</p>
     `
 };
 
@@ -2539,6 +2637,370 @@ function updateGomokuUI() {
     if (whiteWinsEl) whiteWinsEl.textContent = gomokuStats.white;
 }
 
+// ==================== 打砖块 ====================
+const breakoutCanvas = document.getElementById('breakout-canvas');
+const breakoutCtx = breakoutCanvas.getContext('2d');
+let breakoutGameLoop = null, breakoutPaused = false, breakoutDiff = 'easy';
+let breakoutScore = 0, breakoutLives = 3;
+let paddle = { x: 0, y: 0, width: 80, height: 10, dx: 8 };
+let ball = { x: 0, y: 0, radius: 6, dx: 0, dy: 0 };
+let bricks = [];
+const BRICK_ROW_COUNT = 5;
+const BRICK_COLUMN_COUNT = 8;
+const BRICK_PADDING = 5;
+const BRICK_OFFSET_TOP = 40;
+const BRICK_OFFSET_LEFT = 25;
+let brickWidth = 0, brickHeight = 15;
+const breakoutDiffConfig = { easy: 3, medium: 4, hard: 5.5, insane: 7 };
+
+// 新增：按键状态跟踪（用于长按快速移动）
+let breakoutKeys = { left: false, right: false };
+let breakoutTouchInterval = null;
+
+function setBreakoutDiff(diff) {
+    breakoutDiff = diff;
+    document.querySelectorAll('#breakout .diff-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+}
+
+function resizeBreakoutCanvas() {
+    const maxWidth = Math.min(480, window.innerWidth - 32);
+    breakoutCanvas.width = maxWidth;
+    breakoutCanvas.height = Math.floor(maxWidth * 0.667);
+    paddle.width = Math.max(60, breakoutCanvas.width * 0.18);
+    paddle.height = Math.max(8, breakoutCanvas.height * 0.03);
+    paddle.y = breakoutCanvas.height - paddle.height - 10;
+    ball.radius = Math.max(4, breakoutCanvas.width * 0.012);
+}
+
+function createBricks() {
+    bricks = [];
+    brickWidth = (breakoutCanvas.width - (BRICK_OFFSET_LEFT * 2) - (BRICK_PADDING * (BRICK_COLUMN_COUNT - 1))) / BRICK_COLUMN_COUNT;
+    brickHeight = Math.max(12, breakoutCanvas.height * 0.045);
+    const colors = ['#ff6b6b', '#f9ca24', '#6c5ce7', '#00d4ff', '#00ff88'];
+    for (let r = 0; r < BRICK_ROW_COUNT; r++) {
+        for (let c = 0; c < BRICK_COLUMN_COUNT; c++) {
+            bricks.push({
+                x: BRICK_OFFSET_LEFT + c * (brickWidth + BRICK_PADDING),
+                y: BRICK_OFFSET_TOP + r * (brickHeight + BRICK_PADDING),
+                width: brickWidth,
+                height: brickHeight,
+                color: colors[r % colors.length],
+                visible: true
+            });
+        }
+    }
+}
+
+function resetBall() {
+    ball.x = breakoutCanvas.width / 2;
+    ball.y = breakoutCanvas.height - 30;
+    const baseSpeed = breakoutDiffConfig[breakoutDiff] * (breakoutCanvas.width / 480);
+    const angle = (Math.random() * 60 + 60) * Math.PI / 180;
+    ball.dx = baseSpeed * Math.cos(angle) * (Math.random() > 0.5 ? 1 : -1);
+    ball.dy = -baseSpeed * Math.sin(angle);
+}
+
+function initBreakout() {
+    resizeBreakoutCanvas();
+    paddle.x = (breakoutCanvas.width - paddle.width) / 2;
+    breakoutScore = 0;
+    breakoutLives = 3;
+    breakoutPaused = false;
+    breakoutKeys = { left: false, right: false }; // 重置按键状态
+    const btn = document.getElementById('breakout-pause-btn');
+    if (btn) btn.textContent = '暂停';
+    updateBreakoutUI();
+    createBricks();
+    resetBall();
+    initBreakoutTouchButtons(); // 初始化触摸按钮
+}
+
+function startBreakout() {
+    if (breakoutGameLoop) cancelAnimationFrame(breakoutGameLoop);
+    initBreakout();
+    breakoutPaused = false;
+    gameLoopBreakout();
+}
+
+function pauseBreakout() {
+    breakoutPaused = !breakoutPaused;
+    const btn = document.getElementById('breakout-pause-btn');
+    if (btn) btn.textContent = breakoutPaused ? '继续' : '暂停';
+    if (!breakoutPaused) gameLoopBreakout();
+}
+
+function resetBreakout() {
+    if (breakoutGameLoop) cancelAnimationFrame(breakoutGameLoop);
+    initBreakout();
+    drawBreakout();
+}
+
+function gameLoopBreakout() {
+    if (breakoutPaused) return;
+    updateBreakout();
+    drawBreakout();
+    breakoutGameLoop = requestAnimationFrame(gameLoopBreakout);
+}
+
+function updateBreakout() {
+    // 处理长按移动（放在球移动之前）
+    if (breakoutKeys.left) {
+        paddle.x = Math.max(0, paddle.x - paddle.dx * 1.5);
+    }
+    if (breakoutKeys.right) {
+        paddle.x = Math.min(breakoutCanvas.width - paddle.width, paddle.x + paddle.dx * 1.5);
+    }
+
+    ball.x += ball.dx;
+    ball.y += ball.dy;
+
+    // 左右墙壁
+    if (ball.x + ball.radius > breakoutCanvas.width || ball.x - ball.radius < 0) {
+        ball.dx = -ball.dx;
+    }
+    // 顶部
+    if (ball.y - ball.radius < 0) {
+        ball.dy = -ball.dy;
+    }
+    // 底部掉落
+    if (ball.y - ball.radius > breakoutCanvas.height) {
+        breakoutLives--;
+        updateBreakoutUI();
+        if (breakoutLives <= 0) {
+            gameOverBreakout();
+            return;
+        }
+        resetBall();
+        return;
+    }
+
+    // 挡板碰撞
+    if (ball.y + ball.radius > paddle.y &&
+        ball.y - ball.radius < paddle.y + paddle.height &&
+        ball.x > paddle.x &&
+        ball.x < paddle.x + paddle.width) {
+        const hitPoint = ball.x - (paddle.x + paddle.width / 2);
+        const normalized = hitPoint / (paddle.width / 2);
+        const angle = normalized * (Math.PI / 3);
+        const speed = Math.sqrt(ball.dx * ball.dx + ball.dy * ball.dy);
+        ball.dx = speed * Math.sin(angle);
+        ball.dy = -Math.abs(speed * Math.cos(angle));
+    }
+
+    // 砖块碰撞
+    for (let b of bricks) {
+        if (!b.visible) continue;
+        if (ball.x > b.x && ball.x < b.x + b.width &&
+            ball.y > b.y && ball.y < b.y + b.height) {
+            b.visible = false;
+            ball.dy = -ball.dy;
+            breakoutScore += 10;
+            updateBreakoutUI();
+            break;
+        }
+    }
+
+    // 胜利判断
+    if (bricks.every(b => !b.visible)) {
+        gameWinBreakout();
+    }
+}
+
+function drawBreakout() {
+    breakoutCtx.fillStyle = '#0a0a1a';
+    breakoutCtx.fillRect(0, 0, breakoutCanvas.width, breakoutCanvas.height);
+
+    // 砖块
+    for (let b of bricks) {
+        if (!b.visible) continue;
+        breakoutCtx.fillStyle = b.color;
+        breakoutCtx.shadowColor = b.color;
+        breakoutCtx.shadowBlur = 6;
+        breakoutCtx.fillRect(b.x + 1, b.y + 1, b.width - 2, b.height - 2);
+        breakoutCtx.shadowBlur = 0;
+    }
+
+    // 挡板
+    breakoutCtx.fillStyle = '#00d4ff';
+    breakoutCtx.shadowColor = '#00d4ff';
+    breakoutCtx.shadowBlur = 12;
+    breakoutCtx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
+    breakoutCtx.shadowBlur = 0;
+
+    // 球
+    breakoutCtx.beginPath();
+    breakoutCtx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+    breakoutCtx.fillStyle = '#ffd700';
+    breakoutCtx.shadowColor = '#ffd700';
+    breakoutCtx.shadowBlur = 10;
+    breakoutCtx.fill();
+    breakoutCtx.shadowBlur = 0;
+    breakoutCtx.closePath();
+}
+
+function updateBreakoutUI() {
+    const scoreEl = document.getElementById('breakout-score');
+    const livesEl = document.getElementById('breakout-lives');
+    if (scoreEl) scoreEl.textContent = breakoutScore;
+    if (livesEl) livesEl.textContent = breakoutLives;
+}
+
+function gameOverBreakout() {
+    if (breakoutGameLoop) cancelAnimationFrame(breakoutGameLoop);
+    showModal('💥 游戏结束', `得分: ${breakoutScore} | 难度: ${breakoutDiff}`, false);
+}
+
+function gameWinBreakout() {
+    if (breakoutGameLoop) cancelAnimationFrame(breakoutGameLoop);
+    showModal('🎉 恭喜通关！', `得分: ${breakoutScore} | 剩余生命: ${breakoutLives} | 难度: ${breakoutDiff}`, true);
+}
+
+// 键盘控制（支持长按）
+document.addEventListener('keydown', (e) => {
+    if (currentGame !== 'breakout') return;
+    if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        breakoutKeys.left = true;
+    } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        breakoutKeys.right = true;
+    } else if (e.key === ' ') {
+        e.preventDefault();
+        pauseBreakout();
+    }
+});
+
+document.addEventListener('keyup', (e) => {
+    if (currentGame !== 'breakout') return;
+    if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        breakoutKeys.left = false;
+    } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        breakoutKeys.right = false;
+    }
+});
+
+// 触摸滑动控制（修复 passive 警告）
+breakoutCanvas.addEventListener('touchstart', (e) => {
+    if (currentGame !== 'breakout') return;
+    // 不调用 preventDefault，避免 passive 警告
+}, { passive: true });
+
+breakoutCanvas.addEventListener('touchmove', (e) => {
+    if (currentGame !== 'breakout') return;
+    const rect = breakoutCanvas.getBoundingClientRect();
+    const touchX = e.touches[0].clientX - rect.left;
+    const scaleX = breakoutCanvas.width / rect.width;
+    paddle.x = Math.max(0, Math.min(breakoutCanvas.width - paddle.width, touchX * scaleX - paddle.width / 2));
+    // 不调用 preventDefault，避免 passive 警告
+}, { passive: true });
+
+// 移动端按钮控制（支持长按连续移动）
+function handleBreakoutBtn(e, action) {
+    e.preventDefault();
+    if (currentGame !== 'breakout') return;
+    
+    if (e.type === 'touchstart') {
+        if (action === 'left') {
+            breakoutKeys.left = true;
+        } else if (action === 'right') {
+            breakoutKeys.right = true;
+        }
+    } else if (e.type === 'touchend' || e.type === 'touchcancel') {
+        if (action === 'left') {
+            breakoutKeys.left = false;
+        } else if (action === 'right') {
+            breakoutKeys.right = false;
+        }
+    }
+}
+
+// 为按钮添加 touchend/touchcancel 监听
+function initBreakoutTouchButtons() {
+    const leftBtn = document.getElementById('breakout-btn-left');
+    const rightBtn = document.getElementById('breakout-btn-right');
+    
+    if (!leftBtn || !rightBtn) return;
+    
+    // 移除旧的事件监听器（避免重复绑定）
+    const newLeftBtn = leftBtn.cloneNode(true);
+    const newRightBtn = rightBtn.cloneNode(true);
+    leftBtn.parentNode.replaceChild(newLeftBtn, leftBtn);
+    rightBtn.parentNode.replaceChild(newRightBtn, rightBtn);
+    
+    // 绑定新事件 - 左移按钮
+    newLeftBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (currentGame !== 'breakout') return;
+        breakoutKeys.left = true;
+    }, { passive: false });
+    
+    newLeftBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        breakoutKeys.left = false;
+    }, { passive: false });
+    
+    newLeftBtn.addEventListener('touchcancel', (e) => {
+        e.preventDefault();
+        breakoutKeys.left = false;
+    }, { passive: false });
+    
+    // 绑定新事件 - 右移按钮
+    newRightBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (currentGame !== 'breakout') return;
+        breakoutKeys.right = true;
+    }, { passive: false });
+    
+    newRightBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        breakoutKeys.right = false;
+    }, { passive: false });
+    
+    newRightBtn.addEventListener('touchcancel', (e) => {
+        e.preventDefault();
+        breakoutKeys.right = false;
+    }, { passive: false });
+    
+    // 同时支持鼠标事件（桌面端测试用）
+    newLeftBtn.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        if (currentGame !== 'breakout') return;
+        breakoutKeys.left = true;
+    });
+    
+    newLeftBtn.addEventListener('mouseup', (e) => {
+        e.preventDefault();
+        breakoutKeys.left = false;
+    });
+    
+    newLeftBtn.addEventListener('mouseleave', (e) => {
+        breakoutKeys.left = false;
+    });
+    
+    newRightBtn.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        if (currentGame !== 'breakout') return;
+        breakoutKeys.right = true;
+    });
+    
+    newRightBtn.addEventListener('mouseup', (e) => {
+        e.preventDefault();
+        breakoutKeys.right = false;
+    });
+    
+    newRightBtn.addEventListener('mouseleave', (e) => {
+        breakoutKeys.right = false;
+    });
+}
+
+// 窗口大小改变时重绘
+window.addEventListener('resize', () => {
+    if (currentGame === 'breakout') {
+        resizeBreakoutCanvas();
+        paddle.y = breakoutCanvas.height - paddle.height - 10;
+        drawBreakout();
+    }
+});
+
 
 // ==================== 初始化 ====================
 newSudoku();
@@ -2547,6 +3009,7 @@ initTetris(); drawTetris();
 newMineGame();
 newGame2048();
 newGomokuGame();
+resetBreakout();
 
 </script>
 </body>

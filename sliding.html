@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>滑块拼图 - 经典游戏合集</title>
+    <link rel="stylesheet" href="assets/css/common.css">
+    <link rel="stylesheet" href="assets/css/sliding.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 滑块拼图游戏区域 -->
+        <div id="sliding" class="game-area">
+            <!-- 主题选择 -->
+            <div class="sliding-theme-selector">
+                <button class="theme-btn active" data-theme="mandala" onclick="setSlidingTheme('mandala')">🌀 曼陀罗</button>
+                <button class="theme-btn" data-theme="wave" onclick="setSlidingTheme('wave')">🌊 波浪</button>
+                <button class="theme-btn" data-theme="cellular" onclick="setSlidingTheme('cellular')">🧬 细胞</button>
+                <button class="theme-btn" data-theme="spiral" onclick="setSlidingTheme('spiral')">🌀 螺旋</button>
+                <button class="theme-btn" data-theme="stripe" onclick="setSlidingTheme('stripe')">📊 条纹</button>
+            </div>
+
+            <!-- 难度选择 -->
+            <div class="difficulty-selector">
+                <button class="diff-btn" data-diff="easy" onclick="setSlidingDifficulty('easy')">简单 3×3</button>
+                <button class="diff-btn active" data-diff="medium" onclick="setSlidingDifficulty('medium')">中等 4×4</button>
+                <button class="diff-btn" data-diff="hard" onclick="setSlidingDifficulty('hard')">困难 5×5</button>
+                <button class="diff-btn" data-diff="expert" onclick="setSlidingDifficulty('expert')">专家 6×6</button>
+            </div>
+
+            <!-- 操作面板 -->
+            <div class="control-panel">
+                <button class="ctrl-btn start-btn" onclick="startSlidingGame()">🔀 打乱</button>
+                <button class="ctrl-btn hint-btn" onclick="showSlidingPreview()">👁 预览</button>
+                <button class="ctrl-btn reset-btn" onclick="resetSlidingGame()">↺ 重置</button>
+                <button class="ctrl-btn num-btn" id="sliding-num-toggle" onclick="toggleSlidingNumbers()">🔢 数字</button>
+            </div>
+
+            <!-- 统计信息 -->
+            <div class="sliding-stats info-panel">
+                <div>👣 步数: <span id="sliding-moves">0</span></div>
+                <div>⏱ 用时: <span id="sliding-time">00:00</span></div>
+            </div>
+
+            <!-- 拼图棋盘 -->
+            <div class="sliding-container">
+                <div id="sliding-board" class="sliding-board"></div>
+                <div class="controls-hint">点击空白格相邻的方块滑动 · 拖动方块移动 · 空格键打乱 · N键切换数字</div>
+            </div>
+
+            <!-- 预览图弹窗 -->
+            <div class="modal" id="sliding-preview-modal">
+                <div class="modal-content">
+                    <h2>🖼 完整图案预览</h2>
+                    <div id="sliding-preview-area" class="sliding-preview-area"></div>
+                    <button class="modal-btn" onclick="closeSlidingPreview()">关闭预览</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="assets/js/common.js"></script>
+    <script>initCommonLayout();</script>
+    <script src="assets/js/sliding.js"></script>
+    <script>initSliding();</script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+/* ========== 扫雷 ========== */
+.minesweeper-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+.mine-grid-wrapper {
+    overflow-x: auto;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 4px;
+}
+.minesweeper-grid {
+    display: grid;
+    gap: 2px;
+    background: #333;
+    padding: 4px;
+    border-radius: 8px;
+    width: fit-content;
+}
+.mine-cell {
+    width: clamp(28px, 8vw, 40px);
+    height: clamp(28px, 8vw, 40px);
+    background: #4a4a6a;
+    border: none;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: clamp(0.8em, 3vw, 1.1em);
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.mine-cell:active:not(.revealed):not(.flagged) { transform: scale(0.92); background: #5a5a8a; }
+.mine-cell.revealed { background: #2a2a4a; cursor: default; }
+.mine-cell.flagged { background: #ff6b6b; color: white; }
+.mine-cell.mine { background: #dc3545; color: white; }
+.mine-cell.num-1 { color: #3498db; }
+.mine-cell.num-2 { color: #2ecc71; }
+.mine-cell.num-3 { color: #e74c3c; }
+.mine-cell.num-4 { color: #9b59b6; }
+.mine-cell.num-5 { color: #e67e22; }
+.mine-cell.num-6 { color: #1abc9c; }
+.mine-cell.num-7 { color: #34495e; }
+.mine-cell.num-8 { color: #7f8c8d; }
+
+.mine-info {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    font-size: 0.9em;
+    flex-wrap: wrap;
+}
+.mine-info span { color: #ff6b6b; }
+
+.flag-mode-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 0.9em;
+}
+.flag-toggle {
+    width: 48px;
+    height: 26px;
+    background: #444;
+    border-radius: 13px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.3s;
+    flex-shrink: 0;
+}
+.flag-toggle.active { background: #ff6b6b; }
+.flag-toggle::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    top: 3px;
+    left: 3px;
+    transition: left 0.3s;
+}
+.flag-toggle.active::after { left: 25px; }

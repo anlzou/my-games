@@ -1,0 +1,10 @@
+.svn
+.idea
+.settings
+.project
+.classpath
+.vscode
+logs
+target
+*.iml
+overlays

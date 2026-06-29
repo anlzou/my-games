@@ -253,4 +253,10 @@ function closeDrawerOnOutsideClick(e) {
     document.removeEventListener('mousedown', closeDrawerOnOutsideClick);
 }
 
+// 关闭弹窗后重置游戏（不刷新页面，避免加载动画）
+function closeModal() {
+    document.getElementById('game-modal').classList.remove('show');
+    resetTetris();
+}
+
 initTetris(); drawTetris();

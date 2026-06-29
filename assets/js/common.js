@@ -1,5 +1,6 @@
 // ==================== 通用功能 ====================
 let currentGame = 'sudoku';
+let timerInterval = null;
 
 const gameNames = {
     sudoku: '数独',
@@ -43,16 +44,104 @@ function getCurrentGame() {
     return path.split('/').pop().replace('.html', '') || 'sudoku';
 }
 
+// ========== 页面过渡加载动画 ==========
+function showPageLoading(gameKey) {
+    // 移除已有 overlay
+    const existing = document.querySelector('.page-transition-overlay');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'page-transition-overlay';
+    overlay.innerHTML = `
+        <div class="loading-game-icon">${gameIcons[gameKey] || '🎮'}</div>
+        <div class="spinner"></div>
+        <div class="loading-text">加载 ${gameNames[gameKey] || '游戏'}...</div>
+    `;
+    document.body.appendChild(overlay);
+    return overlay;
+}
+
+function hidePageLoading(callback) {
+    const overlay = document.querySelector('.page-transition-overlay');
+    if (overlay) {
+        overlay.classList.add('hidden');
+        setTimeout(() => {
+            overlay.remove();
+            if (callback) callback();
+        }, 500);
+    } else {
+        if (callback) callback();
+    }
+}
+
+// 拦截所有游戏链接点击，添加过渡动画
+function setupGameLinkInterception() {
+    // 使用事件委托监听所有游戏切换链接
+    document.addEventListener('click', function(e) {
+        const link = e.target.closest('a.game-btn, a.sidebar-item, a.game-card');
+        if (!link) return;
+        const href = link.getAttribute('href');
+        if (!href || !href.endsWith('.html') || href === window.location.pathname.split('/').pop()) return;
+
+        e.preventDefault();
+        const gameKey = href.replace('.html', '');
+        showPageLoading(gameKey);
+        // 标记来源为"菜单导航"，目标页面据此只显示一次加载动画
+        sessionStorage.setItem('fromMenuNavigation', 'true');
+        // 短暂延迟以确保动画渲染
+        setTimeout(() => {
+            window.location.href = href;
+        }, 300);
+    });
+}
+
 // ========== 动态生成公共布局（侧边栏 + 桌面选择器 + 顶部栏 + 模态框） ==========
 function initCommonLayout() {
     const current = getCurrentGame();
-    
-    // 如果侧边栏已存在（直接写在 HTML 中），则不重复生成
-    if (document.getElementById('sidebar')) return;
+    currentGame = current;
 
     const container = document.querySelector('.container');
+    if (!container) return;
+
     const gameName = gameNames[current] || '游戏';
     const gameIcon = gameIcons[current] || '🎮';
+
+    // 如果侧边栏和顶部栏已存在（minesweeper等页面硬编码了），则只更新active状态，不重新生成
+    const existingSidebar = document.getElementById('sidebar');
+    const existingTopBar = document.querySelector('.top-bar');
+    const existingSelector = document.getElementById('desktop-selector');
+
+    if (existingSidebar && existingTopBar && existingSelector) {
+        // 更新 active 状态
+        existingSidebar.querySelectorAll('.sidebar-item').forEach(el => {
+            const href = el.getAttribute('href');
+            if (href) {
+                const game = href.replace('.html', '');
+                el.classList.toggle('active', game === current);
+            }
+        });
+        existingSelector.querySelectorAll('.game-btn').forEach(el => {
+            const href = el.getAttribute('href');
+            if (href) {
+                const game = href.replace('.html', '');
+                el.classList.toggle('active', game === current);
+            }
+        });
+        // 更新标题
+        const titleEl = existingTopBar.querySelector('h1');
+        if (titleEl) {
+            titleEl.innerHTML = `<span class="game-icon">${gameIcon}</span> ${gameName}`;
+        }
+        // 确保模态框存在
+        ensureModals(container);
+        return;
+    }
+
+    // 移除硬编码的旧布局（如果有旧的侧边栏等）
+    if (existingSidebar) existingSidebar.remove();
+    if (document.querySelector('.top-bar')) document.querySelector('.top-bar').remove();
+    if (existingSelector) existingSelector.remove();
+    if (document.querySelector('.sidebar-overlay')) document.querySelector('.sidebar-overlay').remove();
 
     // 构建导航项 HTML
     const sidebarItemsHtml = gameList.map(g =>
@@ -87,28 +176,39 @@ function initCommonLayout() {
     // 插入到 container 最前面（游戏内容之前）
     container.insertAdjacentHTML('afterbegin', headerHtml);
 
-    // 如果 container 中没有模态框，则追加
-    if (!document.getElementById('game-modal')) {
-        const modalHtml = `
-        <!-- 游戏结束弹窗 -->
-        <div class="modal" id="game-modal">
-            <div class="modal-content" id="modal-content">
-                <h2 id="modal-title"></h2>
-                <p id="modal-msg"></p>
-                <button class="modal-btn" onclick="closeModal()">继续</button>
-            </div>
-        </div>
+    // 确保模态框存在
+    ensureModals(container);
 
-        <!-- 规则说明弹窗 -->
-        <div class="modal rules-modal" id="rules-modal">
-            <div class="modal-content">
-                <h2 id="rules-title">📖 游戏规则</h2>
-                <div id="rules-body"></div>
-                <button class="modal-btn" onclick="closeRules()">知道了</button>
-            </div>
-        </div>`;
-        container.insertAdjacentHTML('beforeend', modalHtml);
-    }
+    // 设置游戏链接拦截
+    setupGameLinkInterception();
+}
+
+function ensureModals(container) {
+    // 移除旧模态框（如果有页面硬编码的）
+    const oldGameModal = document.getElementById('game-modal');
+    const oldRulesModal = document.getElementById('rules-modal');
+    if (oldGameModal) oldGameModal.remove();
+    if (oldRulesModal) oldRulesModal.remove();
+
+    const modalHtml = `
+    <!-- 游戏结束弹窗 -->
+    <div class="modal" id="game-modal">
+        <div class="modal-content" id="modal-content">
+            <h2 id="modal-title"></h2>
+            <p id="modal-msg"></p>
+            <button class="modal-btn" onclick="closeModal()">继续</button>
+        </div>
+    </div>
+
+    <!-- 规则说明弹窗 -->
+    <div class="modal rules-modal" id="rules-modal">
+        <div class="modal-content">
+            <h2 id="rules-title">📖 游戏规则</h2>
+            <div id="rules-body"></div>
+            <button class="modal-btn" onclick="closeRules()">知道了</button>
+        </div>
+    </div>`;
+    container.insertAdjacentHTML('beforeend', modalHtml);
 }
 
 let seconds = 0;
@@ -123,20 +223,24 @@ function closeSidebar() {
 }
 
 function selectGameFromSidebar(game) {
-    window.location.href = './' + game + '.html';
+    showPageLoading(game);
+    sessionStorage.setItem('fromMenuNavigation', 'true');
+    setTimeout(() => {
+        window.location.href = './' + game + '.html';
+    }, 300);
 }
 
 function startTimer(displayId) {
     stopTimer();
     seconds = 0;
+    const isMineTimer = displayId === 'mine-timer';
     timerInterval = setInterval(() => {
         seconds++;
         const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
         const secs = (seconds % 60).toString().padStart(2, '0');
         const el = document.getElementById(displayId);
         if (el) {
-            if (displayId === 'mine-timer') el.textContent = seconds;
-            else el.textContent = `${mins}:${secs}`;
+            el.textContent = isMineTimer ? seconds : `${mins}:${secs}`;
         }
     }, 1000);
 }
@@ -156,7 +260,8 @@ function showModal(title, msg, isWin) {
 
 function closeModal() {
     document.getElementById('game-modal').classList.remove('show');
-    location.reload();
+    // 不再使用 location.reload()，避免触发页面的加载动画
+    // 各个游戏页面可自行覆盖此方法来实现重置逻辑
 }
 
 // ==================== 规则说明 ====================
@@ -441,3 +546,46 @@ function showRules() {
 function closeRules() {
     document.getElementById('rules-modal').classList.remove('show');
 }
+
+// ==================== 页面加载自动处理：加载动画 ====================
+(function autoPageTransition() {
+    const current = getCurrentGame();
+    // 大厅页面不显示加载动画
+    if (current === 'index' || current === '') return;
+
+    // 检查是否是从菜单导航过来的（有 sessionStorage 标记）
+    const fromMenu = sessionStorage.getItem('fromMenuNavigation');
+    if (fromMenu !== 'true') {
+        // 直接访问或刷新页面：不显示加载动画
+        sessionStorage.removeItem('fromMenuNavigation');
+        return;
+    }
+
+    // 从菜单导航过来：显示一次加载动画然后淡出
+    sessionStorage.removeItem('fromMenuNavigation');
+    const doShow = function() {
+        showPageLoading(current);
+        // 等页面完全加载后隐藏
+        if (document.readyState === 'complete') {
+            setTimeout(function() {
+                hidePageLoading();
+            }, 200);
+        } else {
+            window.addEventListener('load', function() {
+                setTimeout(function() {
+                    hidePageLoading();
+                }, 200);
+            });
+            // 兜底：最多等 2 秒自动隐藏
+            setTimeout(function() {
+                hidePageLoading();
+            }, 2000);
+        }
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', doShow);
+    } else {
+        doShow();
+    }
+})();

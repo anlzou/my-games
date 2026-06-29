@@ -224,4 +224,10 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+// 关闭弹窗后重置游戏（不刷新页面，避免加载动画）
+function closeModal() {
+    document.getElementById('game-modal').classList.remove('show');
+    resetSokoban();
+}
+
 newSokobanGame();

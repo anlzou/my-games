@@ -9,47 +9,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- 移动端侧边栏 -->
-        <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
-        <div class="sidebar" id="sidebar">
-            <button class="sidebar-close" onclick="closeSidebar()">✕</button>
-            <div class="sidebar-title">🎮 选择游戏</div>
-            <a href="./sudoku.html" class="sidebar-item">🔢 数独</a>
-            <a href="./snake.html" class="sidebar-item">🐍 贪吃蛇</a>
-            <a href="./tetris.html" class="sidebar-item">🧱 俄罗斯方块</a>
-            <a href="./minesweeper.html" class="sidebar-item active">💣 扫雷</a>
-            <a href="./game2048.html" class="sidebar-item">🎲 2048</a>
-            <a href="./gomoku.html" class="sidebar-item">⚫ 五子棋</a>
-            <a href="./breakout.html" class="sidebar-item">🏓 打砖块</a>
-            <a href="./memory.html" class="sidebar-item">🃏 记忆翻牌</a>
-            <a href="./sokoban.html" class="sidebar-item">📦 推箱子</a>
-            <a href="./whackamole.html" class="sidebar-item">🐹 打地鼠</a>
-            <a href="./flappybird.html" class="sidebar-item">🐦 飞翔的小鸟</a>
-            <a href="./pinball.html" class="sidebar-item">📌 见缝插针</a>
-        </div>
-
-        <!-- 顶部栏 -->
-        <div class="top-bar">
-            <button class="menu-btn" id="menu-btn" onclick="openSidebar()">☰</button>
-            <h1><span class="game-icon">💣</span> 扫雷</h1>
-            <button class="help-btn" id="help-btn" onclick="showRules()">?</button>
-        </div>
-
-        <!-- 桌面端游戏选择器 -->
-        <div class="game-selector" id="desktop-selector">
-            <a href="./sudoku.html" class="game-btn">🔢 数独</a>
-            <a href="./snake.html" class="game-btn">🐍 贪吃蛇</a>
-            <a href="./tetris.html" class="game-btn">🧱 俄罗斯方块</a>
-            <a href="./minesweeper.html" class="game-btn active">💣 扫雷</a>
-            <a href="./game2048.html" class="game-btn">🎲 2048</a>
-            <a href="./gomoku.html" class="game-btn">⚫ 五子棋</a>
-            <a href="./breakout.html" class="game-btn">🏓 打砖块</a>
-            <a href="./memory.html" class="game-btn">🃏 记忆翻牌</a>
-            <a href="./sokoban.html" class="game-btn">📦 推箱子</a>
-            <a href="./whackamole.html" class="game-btn">🐹 打地鼠</a>
-            <a href="./flappybird.html" class="game-btn">🐦 飞翔的小鸟</a>
-            <a href="./pinball.html" class="game-btn">📌 见缝插针</a>
-        </div>
         <!-- 扫雷游戏区域 -->
         <div id="minesweeper" class="game-area">
             <div class="difficulty-selector">
@@ -78,26 +37,10 @@
                 <div class="controls-hint">左键揭开 | 右键标记 | 或开启上方标记模式</div>
             </div>
         </div>
-        <!-- 游戏结束弹窗 -->
-        <div class="modal" id="game-modal">
-            <div class="modal-content" id="modal-content">
-                <h2 id="modal-title"></h2>
-                <p id="modal-msg"></p>
-                <button class="modal-btn" onclick="closeModal()">继续</button>
-            </div>
-        </div>
-
-        <!-- 规则说明弹窗 -->
-        <div class="modal rules-modal" id="rules-modal">
-            <div class="modal-content">
-                <h2 id="rules-title">📖 游戏规则</h2>
-                <div id="rules-body"></div>
-                <button class="modal-btn" onclick="closeRules()">知道了</button>
-            </div>
-        </div>
-
     </div>
     <script src="assets/js/common.js"></script>
+    <script>initCommonLayout();</script>
     <script src="assets/js/minesweeper.js"></script>
 </body>
 </html>
+

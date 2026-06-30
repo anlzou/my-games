@@ -30,7 +30,7 @@ const gameIcons = {
     sokoban: '📦',
     whackamole: '🐹',
     flappybird: '🐦',
-    pinball: '📌',
+    pinball: '🎯',
     klotski: '🏯',
     puzzle: '🧩',
 };
@@ -157,8 +157,10 @@ function initCommonLayout() {
         <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
         <div class="sidebar" id="sidebar">
             <button class="sidebar-close" onclick="closeSidebar()">✕</button>
-            <div class="sidebar-title">🎮 选择游戏</div>
-            ${sidebarItemsHtml}
+            <div class="sidebar-title">🎮 游戏列表</div>
+            <div class="sidebar-items">
+                ${sidebarItemsHtml}
+            </div>
         </div>
 
         <!-- 顶部栏 -->
@@ -173,8 +175,20 @@ function initCommonLayout() {
             ${selectorItemsHtml}
         </div>`;
 
-    // 插入到 container 最前面（游戏内容之前）
+        // 插入到 container 最前面（游戏内容之前）
     container.insertAdjacentHTML('afterbegin', headerHtml);
+
+    // 将游戏内容区域（.game-area）包裹到 .game-scroll-container 中
+    const gameArea = container.querySelector('.game-area');
+    if (gameArea) {
+        const scrollContainer = document.createElement('div');
+        scrollContainer.className = 'game-scroll-container';
+        gameArea.parentNode.insertBefore(scrollContainer, gameArea);
+        scrollContainer.appendChild(gameArea);
+    }
+
+    // 给 body 添加 game-page 类
+    document.body.classList.add('game-page');
 
     // 确保模态框存在
     ensureModals(container);
@@ -191,23 +205,27 @@ function ensureModals(container) {
     if (oldRulesModal) oldRulesModal.remove();
 
     const modalHtml = `
-    <!-- 游戏结束弹窗 -->
-    <div class="modal" id="game-modal">
-        <div class="modal-content" id="modal-content">
-            <h2 id="modal-title"></h2>
-            <p id="modal-msg"></p>
-            <button class="modal-btn" onclick="closeModal()">继续</button>
+        <!-- 游戏结束弹窗 -->
+        <div class="modal" id="game-modal">
+            <div class="modal-content" id="modal-content">
+                <h2 id="modal-title"></h2>
+                <p id="modal-msg"></p>
+                <button class="modal-btn" onclick="closeModal()">继续</button>
+            </div>
         </div>
-    </div>
 
-    <!-- 规则说明弹窗 -->
-    <div class="modal rules-modal" id="rules-modal">
-        <div class="modal-content">
-            <h2 id="rules-title">📖 游戏规则</h2>
-            <div id="rules-body"></div>
-            <button class="modal-btn" onclick="closeRules()">知道了</button>
-        </div>
-    </div>`;
+        <!-- 规则说明弹窗 -->
+        <div class="modal rules-modal" id="rules-modal">
+            <div class="modal-content">
+                <div class="rules-modal-header">
+                    <h2 id="rules-title">📖 游戏规则</h2>
+                </div>
+                <div id="rules-body" class="rules-modal-body"></div>
+                <div class="rules-modal-footer">
+                    <button class="modal-btn" onclick="closeRules()">知道了</button>
+                </div>
+            </div>
+        </div>`;
     container.insertAdjacentHTML('beforeend', modalHtml);
 }
 
@@ -255,7 +273,10 @@ function showModal(title, msg, isWin) {
     document.getElementById('modal-title').textContent = title;
     document.getElementById('modal-msg').textContent = msg;
     content.className = 'modal-content ' + (isWin ? 'win' : 'lose');
-    modal.classList.add('show');
+    // 延迟弹出，让玩家先看清游戏结果
+    setTimeout(() => {
+        modal.classList.add('show');
+    }, 800);
 }
 
 function closeModal() {

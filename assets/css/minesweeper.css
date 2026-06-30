@@ -1,16 +1,42 @@
 /* ========== 扫雷 ========== */
-.minesweeper-wrapper {
+
+/* 修复布局：确保侧边栏和游戏区域都能完整显示 */
+#minesweeper.game-area {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
+    width: 100%;
+    min-height: 0;
+    flex: 1;
+    overflow: hidden;
 }
-.mine-grid-wrapper {
-    overflow-x: auto;
+/* 扫雷页面覆盖通用布局的滚动容器，让内部网格独立滚动 */
+.game-scroll-container:has(#minesweeper) {
+    overflow: hidden !important;
+    padding-bottom: 0 !important;
+}
+
+/* 控制按钮区 - 不滚动，固定在顶部 */
+.mine-controls {
+    flex-shrink: 0;
     width: 100%;
     display: flex;
-    justify-content: center;
-    padding: 4px;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* 棋盘包装区 - 占据剩余空间，超出时独立滚动（双向） */
+.minesweeper-wrapper {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    width: 100%;
+    padding-top: 8px;
+    text-align: center;
+}
+.mine-grid-wrapper {
+    display: inline-block;
+    text-align: left;
 }
 .minesweeper-grid {
     display: grid;
@@ -88,3 +114,113 @@
     transition: left 0.3s;
 }
 .flag-toggle.active::after { left: 25px; }
+
+/* ========== 自定义按钮样式 ========== */
+.custom-btn {
+    background: #6c5ce7 !important;
+}
+.custom-btn:hover {
+    background: #7c6cf7 !important;
+}
+
+/* ========== 自定义设置弹窗 ========== */
+#custom-modal .modal-content {
+    max-width: 380px;
+    width: 90%;
+    background: #2a2a4a;
+    border: 2px solid #6c5ce7;
+    border-radius: 16px;
+    padding: 28px 24px;
+    text-align: center;
+}
+
+#custom-modal .modal-content h2 {
+    color: #fff;
+    font-size: 1.4em;
+    margin-bottom: 20px;
+}
+
+.custom-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.custom-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.custom-row label {
+    color: #ccc;
+    font-size: 0.95em;
+    min-width: 70px;
+    text-align: right;
+}
+
+.custom-row input {
+    width: 90px;
+    padding: 8px 12px;
+    border: 2px solid #555;
+    border-radius: 8px;
+    background: #1e1e3a;
+    color: #fff;
+    font-size: 1em;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.custom-row input:focus {
+    border-color: #6c5ce7;
+}
+
+/* 去掉number输入框的上下箭头 */
+.custom-row input[type="number"]::-webkit-inner-spin-button,
+.custom-row input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.custom-row input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+.custom-hint {
+    color: #888;
+    font-size: 0.8em;
+    margin-top: 4px;
+}
+
+.custom-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.custom-apply-btn {
+    background: #6c5ce7 !important;
+    flex: 1;
+}
+.custom-apply-btn:hover {
+    background: #7c6cf7 !important;
+}
+
+.custom-cancel-btn {
+    background: #e67e22 !important;
+    flex: 1;
+}
+.custom-cancel-btn:hover {
+    background: #d35400 !important;
+}
+
+.custom-random-btn {
+    background: #2ecc71 !important;
+    flex: 1;
+}
+.custom-random-btn:hover {
+    background: #27ae60 !important;
+}
+

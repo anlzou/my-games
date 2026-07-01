@@ -139,10 +139,11 @@ function setupGameLinkInterception() {
         const href = link.getAttribute('href');
         if (!href || !href.endsWith('.html')) return;
 
-        // 不拦截指向当前页面的链接
-        const currentPath = window.location.pathname.split('/').pop();
-        const isSamePage = href.endsWith(currentPath) || href === './' + currentPath;
-        if (isSamePage) return;
+        // 将相对路径解析为完整路径，避免子目录（three/）中路径判断错误
+        const linkUrl = new URL(href, window.location.href);
+        const currentUrl = new URL(window.location.href);
+        // 不拦截指向当前页面的链接（比较完整路径）
+        if (linkUrl.pathname === currentUrl.pathname) return;
 
         e.preventDefault();
         sessionStorage.setItem('fromMenuNavigation', 'true');
@@ -228,16 +229,20 @@ function initCommonLayout(moduleType, sectionType) {
         `<a href="${basePath}${id}.html" class="game-btn${id === current ? ' active' : ''}">${getIcon[id]} ${getName[id]}</a>`
     ).join('\n            ');
 
-    // ===== 移动端侧边栏（分类折叠菜单，显示所有模块） =====
+        // ===== 移动端侧边栏（分类折叠菜单，显示所有模块） =====
+    // 根据页面所在目录确定相对路径前缀：three/ 子目录中的页面需要 ../ 回退
+    const prefix = moduleType === 'three' ? '../' : './';
+    const threePrefix = './' + (moduleType === 'three' ? '' : 'three/');
+    
     const gameCatItemsHtml = gameList.map(id =>
-        `<a href="./${id}.html" class="sidebar-cat-item${id === current && moduleType === 'games' ? ' active' : ''}">
+        `<a href="${prefix}${id}.html" class="sidebar-cat-item${id === current && moduleType === 'games' ? ' active' : ''}">
             <span class="item-icon">${gameIcons[id]}</span>
             <span class="item-name">${gameNames[id]}</span>
         </a>`
     ).join('\n                ');
 
     const threeCatItemsHtml = threeModelList.map(id =>
-        `<a href="./three/${id}.html" class="sidebar-cat-item${id === current && moduleType === 'three' ? ' active' : ''}">
+        `<a href="${threePrefix}${id}.html" class="sidebar-cat-item${id === current && moduleType === 'three' ? ' active' : ''}">
             <span class="item-icon">${threeModelIcons[id]}</span>
             <span class="item-name">${threeModelNames[id]}</span>
         </a>`

@@ -277,7 +277,7 @@ h1 .game-icon {
     padding: 8px 10px 12px;
 }
 
-/* 分类内项目列表（垂直单列） */
+/* 分类内项目列表（单列显示，移动端专用） */
 .sidebar-cat-items {
     display: flex;
     flex-direction: column;
@@ -322,18 +322,6 @@ h1 .game-icon {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-}
-
-/* 当侧边栏较宽（如平板横屏）时自动切换到 2 列 */
-@media (min-width: 400px) and (min-height: 600px) {
-    .sidebar-cat-items {
-        flex-direction: row;
-        flex-wrap: wrap;
-    }
-    .sidebar-cat-item {
-        flex: 1 0 calc(50% - 3px);
-        min-width: 0;
-    }
 }
 
 /* 3D 分类特殊颜色 */

@@ -90,6 +90,37 @@ body {
     padding: 4px 0;
 }
 
+.back-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 212, 255, 0.12);
+    border: 2px solid rgba(0, 212, 255, 0.35);
+    color: #00d4ff;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 110;
+    transition: all 0.3s;
+    flex-shrink: 0;
+    margin-left: 4px;
+    margin-right: 8px;
+}
+.back-btn:hover {
+    background: rgba(0, 212, 255, 0.25);
+    border-color: #00d4ff;
+    box-shadow: 0 0 12px rgba(0, 212, 255, 0.3);
+}
+.back-btn:active {
+    transform: scale(0.9);
+    background: #00d4ff;
+    color: #1a1a2e;
+}
+.back-btn svg {
+    display: block;
+}
+
 .menu-btn {
     display: none;
     background: none;
@@ -543,7 +574,8 @@ body.game-page .container {
 
 /* ========== 通用移动端适配 ========== */
 @media (max-width: 768px) {
-    .container { padding: 8px; }
+            .container { padding: 8px; }
+    .back-btn { display: none; }
     .menu-btn, .help-btn { display: block; }
     .game-selector { display: none; }
     h1 { font-size: 1.3em; }

@@ -2,6 +2,16 @@
 let currentGame = 'sudoku';
 let timerInterval = null;
 
+// 返回主页
+function goBackToIndex() {
+    const moduleInfo = getCurrentModule();
+    if (moduleInfo.module === 'three') {
+        window.location.href = '../index.html';
+    } else {
+        window.location.href = 'index.html';
+    }
+}
+
 const gameNames = {
     sudoku: '数独',
     snake: '贪吃蛇',
@@ -292,16 +302,24 @@ function initCommonLayout(moduleType, sectionType) {
             </div>
         </div>`;
 
+    // 判断是否为3D模型详情页（单独3D模型页面有自己的模型选择器，不需要通用选择器）
+    const isThreeDetailPage = moduleType === 'three' && sectionType === 'models';
+
     const headerHtml = `
         ${sidebarHtml}
 
         <div class="top-bar">
+            <button class="back-btn" id="back-btn" onclick="goBackToIndex()">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </button>
             <button class="menu-btn" id="menu-btn" onclick="openSidebar()">☰</button>
             <h1><span class="game-icon">${itemIcon}</span> ${itemName}</h1>
             <button class="help-btn" id="help-btn" onclick="showRules()" style="${moduleType === 'three' ? 'display:none;' : ''}">?</button>
         </div>
 
-        <div class="game-selector" id="desktop-selector">
+        <div class="game-selector" id="desktop-selector" style="${isThreeDetailPage ? 'display:none;' : ''}">
             ${selectorItemsHtml}
         </div>`;
 

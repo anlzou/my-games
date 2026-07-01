@@ -1,0 +1,86 @@
+/* 3D 模型页通用样式 */
+.three-page .container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.three-container-wrap {
+    flex: 1;
+    position: relative;
+    min-height: 0;
+    overflow: hidden;
+    border-radius: 16px;
+    border: 2px solid rgba(0, 212, 255, 0.2);
+    margin: 0 0 16px;
+    background: #0f0c29;
+}
+
+#three-container {
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
+    cursor: grab;
+}
+
+#three-container:active {
+    cursor: grabbing;
+}
+
+.three-model-selector {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.three-model-btn {
+    padding: 8px 16px;
+    font-size: 0.9em;
+    border: 2px solid rgba(0, 212, 255, 0.4);
+    background: rgba(0, 212, 255, 0.08);
+    color: #00d4ff;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: bold;
+    white-space: nowrap;
+    text-decoration: none;
+    display: inline-block;
+}
+.three-model-btn:hover,
+.three-model-btn.active {
+    background: #00d4ff;
+    color: #1a1a2e;
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
+}
+
+.three-info {
+    text-align: center;
+    color: #888;
+    font-size: 0.85em;
+    margin: 8px 0;
+    flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+    .three-container-wrap {
+        margin: 0 0 12px;
+        border-radius: 12px;
+    }
+    #three-container {
+        min-height: 250px;
+    }
+    .three-model-btn {
+        padding: 6px 12px;
+        font-size: 0.8em;
+    }
+}
+
+@media (max-width: 400px) {
+    #three-container {
+        min-height: 200px;
+    }
+}

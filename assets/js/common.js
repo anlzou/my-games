@@ -34,28 +34,85 @@ const gameIcons = {
     klotski: '🏯',
     puzzle: '🧩',
 };
+const gameDescs = {
+    sudoku: '逻辑填数',
+    snake: '经典街机',
+    tetris: '消除方块',
+    minesweeper: '推理排雷',
+    game2048: '数字合并',
+    gomoku: '策略对战',
+    breakout: '弹球击碎',
+    memory: '考验记忆',
+    sokoban: '益智解谜',
+    whackamole: '快速击打',
+    flappybird: '飞越障碍',
+    pinball: '精准时机',
+    klotski: '滑块解谜',
+    puzzle: '拼图还原',
+};
 
-// 游戏顺序列表（控制导航栏中游戏的排列顺序）
+// 3D 模型数据
+const threeModelNames = {
+    cube: '旋转立方体',
+    sphere: '发光球体',
+    torus: '扭结环',
+    earth: '旋转地球',
+};
+const threeModelIcons = {
+    cube: '📦',
+    sphere: '🔮',
+    torus: '🔄',
+    earth: '🌍',
+};
+const threeModelDescs = {
+    cube: '彩色立方体',
+    sphere: '粒子光效',
+    torus: '复杂曲面',
+    earth: '3D 地球',
+};
+
+// 游戏顺序列表
 const gameList = ['sudoku', 'snake', 'tetris', 'minesweeper', 'game2048', 'gomoku', 'breakout', 'memory', 'sokoban', 'whackamole', 'flappybird', 'pinball', 'klotski', 'puzzle'];
+// 3D 模型顺序列表
+const threeModelList = ['cube', 'sphere', 'torus', 'earth'];
 
-// 获取当前游戏名
-function getCurrentGame() {
+// 获取当前模块和页面ID
+function getCurrentModule() {
     const path = window.location.pathname;
-    return path.split('/').pop().replace('.html', '') || 'sudoku';
+    const parts = path.replace(/\/+$/, '').split('/');
+    const filename = parts[parts.length - 1].replace('.html', '') || 'index';
+    // 检查是否在子目录中（如 three/cube.html）
+    if (parts.length >= 2 && parts[parts.length - 2] === 'three') {
+        return { module: 'three', id: filename };
+    }
+    return { module: 'games', id: filename };
+}
+
+// 获取当前游戏名（兼容旧代码）
+function getCurrentGame() {
+    const info = getCurrentModule();
+    // 如果是3D模块，返回当前模型ID
+    if (info.module === 'three') {
+        return info.id;
+    }
+    return info.id;
 }
 
 // ========== 页面过渡加载动画 ==========
-function showPageLoading(gameKey) {
-    // 移除已有 overlay
+function showPageLoading(key, moduleType) {
     const existing = document.querySelector('.page-transition-overlay');
     if (existing) existing.remove();
+
+    const icon = gameIcons[key] || threeModelIcons[key] || '🎮';
+    const name = gameNames[key] || threeModelNames[key] || '页面';
+    const moduleLabel = moduleType === 'three' ? '3D模型' : '游戏';
 
     const overlay = document.createElement('div');
     overlay.className = 'page-transition-overlay';
     overlay.innerHTML = `
-        <div class="loading-game-icon">${gameIcons[gameKey] || '🎮'}</div>
+        <div class="loading-game-icon">${icon}</div>
         <div class="spinner"></div>
-        <div class="loading-text">加载 ${gameNames[gameKey] || '游戏'}...</div>
+        <div class="loading-text">加载 ${name}...</div>
     `;
     document.body.appendChild(overlay);
     return overlay;
@@ -74,112 +131,179 @@ function hidePageLoading(callback) {
     }
 }
 
-// 拦截所有游戏链接点击，添加过渡动画
+// 拦截所有链接点击，添加过渡动画
 function setupGameLinkInterception() {
-    // 使用事件委托监听所有游戏切换链接
     document.addEventListener('click', function(e) {
-        const link = e.target.closest('a.game-btn, a.sidebar-item, a.game-card');
+        const link = e.target.closest('a.game-btn, a.sidebar-item, a.sidebar-cat-item, a.game-card, a.cat-item, a.model-card, a.three-model-btn');
         if (!link) return;
         const href = link.getAttribute('href');
-        if (!href || !href.endsWith('.html') || href === window.location.pathname.split('/').pop()) return;
+        if (!href || !href.endsWith('.html')) return;
+
+        // 不拦截指向当前页面的链接
+        const currentPath = window.location.pathname.split('/').pop();
+        const isSamePage = href.endsWith(currentPath) || href === './' + currentPath;
+        if (isSamePage) return;
 
         e.preventDefault();
-        const gameKey = href.replace('.html', '');
-        showPageLoading(gameKey);
-        // 标记来源为"菜单导航"，目标页面据此只显示一次加载动画
         sessionStorage.setItem('fromMenuNavigation', 'true');
-        // 短暂延迟以确保动画渲染
         setTimeout(() => {
             window.location.href = href;
-        }, 300);
+        }, 200);
     });
 }
 
 // ========== 动态生成公共布局（侧边栏 + 桌面选择器 + 顶部栏 + 模态框） ==========
-function initCommonLayout() {
-    const current = getCurrentGame();
+// 支持传入模块类型参数：'games' (默认) 或 'three'
+function initCommonLayout(moduleType, sectionType) {
+    const moduleInfo = getCurrentModule();
+    const current = moduleInfo.id;
+    // 如果未指定模块类型，自动判断
+    if (!moduleType) {
+        moduleType = moduleInfo.module;
+    }
     currentGame = current;
 
     const container = document.querySelector('.container');
     if (!container) return;
 
-    const gameName = gameNames[current] || '游戏';
-    const gameIcon = gameIcons[current] || '🎮';
+    // 根据模块类型获取名称和图标
+    let getName, getIcon, itemList, basePath;
+    if (moduleType === 'three') {
+        getName = threeModelNames;
+        getIcon = threeModelIcons;
+        itemList = threeModelList;
+        basePath = './three/';
+    } else {
+        getName = gameNames;
+        getIcon = gameIcons;
+        itemList = gameList;
+        basePath = './';
+    }
 
-    // 如果侧边栏和顶部栏已存在（minesweeper等页面硬编码了），则只更新active状态，不重新生成
+    const itemName = getName[current] || '页面';
+    const itemIcon = getIcon[current] || '🎮';
+    const moduleTitle = moduleType === 'three' ? '🎨 3D模型' : '🎮 游戏列表';
+
+        // 如果侧边栏和顶部栏已存在，只更新 active 状态和标题
     const existingSidebar = document.getElementById('sidebar');
     const existingTopBar = document.querySelector('.top-bar');
     const existingSelector = document.getElementById('desktop-selector');
 
     if (existingSidebar && existingTopBar && existingSelector) {
-        // 更新 active 状态
-        existingSidebar.querySelectorAll('.sidebar-item').forEach(el => {
-            const href = el.getAttribute('href');
-            if (href) {
-                const game = href.replace('.html', '');
-                el.classList.toggle('active', game === current);
-            }
-        });
+        // 更新桌面端选择器
         existingSelector.querySelectorAll('.game-btn').forEach(el => {
             const href = el.getAttribute('href');
             if (href) {
-                const game = href.replace('.html', '');
+                const game = href.replace('.html', '').replace('./three/', '').replace('./', '');
                 el.classList.toggle('active', game === current);
             }
         });
-        // 更新标题
+        // 更新侧边栏分类项 active 状态
+        existingSidebar.querySelectorAll('.sidebar-cat-item').forEach(el => {
+            el.classList.remove('active');
+            const href = el.getAttribute('href');
+            if (href) {
+                const item = href.replace('.html', '').replace('./three/', '').replace('./', '');
+                if (item === current) {
+                    el.classList.add('active');
+                }
+            }
+        });
         const titleEl = existingTopBar.querySelector('h1');
         if (titleEl) {
-            titleEl.innerHTML = `<span class="game-icon">${gameIcon}</span> ${gameName}`;
+            titleEl.innerHTML = `<span class="game-icon">${itemIcon}</span> ${itemName}`;
         }
-        // 确保模态框存在
         ensureModals(container);
         return;
     }
 
-    // 移除硬编码的旧布局（如果有旧的侧边栏等）
+        // 移除旧的布局元素
     if (existingSidebar) existingSidebar.remove();
     if (document.querySelector('.top-bar')) document.querySelector('.top-bar').remove();
     if (existingSelector) existingSelector.remove();
     if (document.querySelector('.sidebar-overlay')) document.querySelector('.sidebar-overlay').remove();
 
-    // 构建导航项 HTML
-    const sidebarItemsHtml = gameList.map(g =>
-        `<a href="./${g}.html" class="sidebar-item${g === current ? ' active' : ''}">${gameIcons[g]} ${gameNames[g]}</a>`
-    ).join('\n            ');
-    const selectorItemsHtml = gameList.map(g =>
-        `<a href="./${g}.html" class="game-btn${g === current ? ' active' : ''}">${gameIcons[g]} ${gameNames[g]}</a>`
+    // ===== 桌面端选择器 =====
+    const selectorItemsHtml = itemList.map(id =>
+        `<a href="${basePath}${id}.html" class="game-btn${id === current ? ' active' : ''}">${getIcon[id]} ${getName[id]}</a>`
     ).join('\n            ');
 
-    // 构建公共结构 HTML
-    const headerHtml = `
-        <!-- 移动端侧边栏 -->
+    // ===== 移动端侧边栏（分类折叠菜单，显示所有模块） =====
+    const gameCatItemsHtml = gameList.map(id =>
+        `<a href="./${id}.html" class="sidebar-cat-item${id === current && moduleType === 'games' ? ' active' : ''}">
+            <span class="item-icon">${gameIcons[id]}</span>
+            <span class="item-name">${gameNames[id]}</span>
+        </a>`
+    ).join('\n                ');
+
+    const threeCatItemsHtml = threeModelList.map(id =>
+        `<a href="./three/${id}.html" class="sidebar-cat-item${id === current && moduleType === 'three' ? ' active' : ''}">
+            <span class="item-icon">${threeModelIcons[id]}</span>
+            <span class="item-name">${threeModelNames[id]}</span>
+        </a>`
+    ).join('\n                ');
+
+    // 当前所在分类默认展开
+    const gamesExpanded = moduleType === 'games' ? ' expanded' : '';
+    const threeExpanded = moduleType === 'three' ? ' expanded' : '';
+    const threeCatExtra = moduleType === 'three' ? ' three-cat' : '';
+
+    const sidebarHtml = `
         <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
         <div class="sidebar" id="sidebar">
-            <button class="sidebar-close" onclick="closeSidebar()">✕</button>
-            <div class="sidebar-title">🎮 游戏列表</div>
-            <div class="sidebar-items">
-                ${sidebarItemsHtml}
+            <div class="sidebar-categories">
+                <!-- 游戏分类 -->
+                <div class="sidebar-category${gamesExpanded}" data-cat="games">
+                    <div class="sidebar-cat-header" onclick="toggleSidebarCategory(this)">
+                        <span class="left">
+                            <span class="cat-icon">🎮</span>
+                            <span class="cat-name">经典游戏</span>
+                            <span class="cat-count">${gameList.length}</span>
+                        </span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="sidebar-cat-body">
+                        <div class="sidebar-cat-items">
+                            ${gameCatItemsHtml}
+                        </div>
+                    </div>
+                </div>
+                <!-- 3D 模型分类 -->
+                <div class="sidebar-category${threeExpanded}${threeCatExtra}" data-cat="three">
+                    <div class="sidebar-cat-header" onclick="toggleSidebarCategory(this)">
+                        <span class="left">
+                            <span class="cat-icon">🎨</span>
+                            <span class="cat-name">3D 模型</span>
+                            <span class="cat-count">${threeModelList.length}</span>
+                        </span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="sidebar-cat-body">
+                        <div class="sidebar-cat-items">
+                            ${threeCatItemsHtml}
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
+        </div>`;
 
-        <!-- 顶部栏 -->
+    const headerHtml = `
+        ${sidebarHtml}
+
         <div class="top-bar">
             <button class="menu-btn" id="menu-btn" onclick="openSidebar()">☰</button>
-            <h1><span class="game-icon">${gameIcon}</span> ${gameName}</h1>
-            <button class="help-btn" id="help-btn" onclick="showRules()">?</button>
+            <h1><span class="game-icon">${itemIcon}</span> ${itemName}</h1>
+            <button class="help-btn" id="help-btn" onclick="showRules()" style="${moduleType === 'three' ? 'display:none;' : ''}">?</button>
         </div>
 
-        <!-- 桌面端游戏选择器 -->
         <div class="game-selector" id="desktop-selector">
             ${selectorItemsHtml}
         </div>`;
 
-        // 插入到 container 最前面（游戏内容之前）
     container.insertAdjacentHTML('afterbegin', headerHtml);
 
-    // 将游戏内容区域（.game-area）包裹到 .game-scroll-container 中
-    const gameArea = container.querySelector('.game-area');
+    // 将内容区域包裹到 scroll-container 中
+    const gameArea = container.querySelector('.game-area, #model-area');
     if (gameArea) {
         const scrollContainer = document.createElement('div');
         scrollContainer.className = 'game-scroll-container';
@@ -187,13 +311,8 @@ function initCommonLayout() {
         scrollContainer.appendChild(gameArea);
     }
 
-    // 给 body 添加 game-page 类
     document.body.classList.add('game-page');
-
-    // 确保模态框存在
     ensureModals(container);
-
-    // 设置游戏链接拦截
     setupGameLinkInterception();
 }
 
@@ -247,6 +366,21 @@ function selectGameFromSidebar(game) {
         window.location.href = './' + game + '.html';
     }, 300);
 }
+
+// 侧边栏分类折叠切换
+function toggleSidebarCategory(headerEl) {
+    const category = headerEl.closest('.sidebar-category');
+    if (!category) return;
+    category.classList.toggle('expanded');
+}
+
+// 点击侧边栏中的项后自动关闭侧边栏
+document.addEventListener('click', function(e) {
+    const item = e.target.closest('.sidebar-cat-item');
+    if (item) {
+        setTimeout(closeSidebar, 100);
+    }
+});
 
 function startTimer(displayId) {
     stopTimer();
@@ -555,10 +689,11 @@ const rulesData = {
 };
 
 function showRules() {
-    // 从当前页面URL推断游戏名
-    const path = window.location.pathname;
-    const game = path.split('/').pop().replace('.html', '') || 'sudoku';
+    const moduleInfo = getCurrentModule();
+    const game = moduleInfo.id || 'sudoku';
     currentGame = game;
+    // 3D 模块没有规则说明
+    if (moduleInfo.module === 'three') return;
     document.getElementById('rules-title').textContent = '📖 ' + gameNames[currentGame] + ' 规则';
     document.getElementById('rules-body').innerHTML = rulesData[currentGame] || rulesData['sudoku'];
     document.getElementById('rules-modal').classList.add('show');
@@ -570,36 +705,45 @@ function closeRules() {
 
 // ==================== 页面加载自动处理：加载动画 ====================
 (function autoPageTransition() {
-    const current = getCurrentGame();
+    const moduleInfo = getCurrentModule();
+    const current = moduleInfo.id;
     // 大厅页面不显示加载动画
     if (current === 'index' || current === '') return;
 
-    // 检查是否是从菜单导航过来的（有 sessionStorage 标记）
     const fromMenu = sessionStorage.getItem('fromMenuNavigation');
     if (fromMenu !== 'true') {
-        // 直接访问或刷新页面：不显示加载动画
         sessionStorage.removeItem('fromMenuNavigation');
         return;
     }
 
-    // 从菜单导航过来：显示一次加载动画然后淡出
     sessionStorage.removeItem('fromMenuNavigation');
     const doShow = function() {
-        showPageLoading(current);
-        // 等页面完全加载后隐藏
+        const icon = gameIcons[current] || threeModelIcons[current] || '🎮';
+        const name = gameNames[current] || threeModelNames[current] || '页面';
+        const overlay = document.createElement('div');
+        overlay.className = 'page-transition-overlay';
+        overlay.innerHTML = `
+            <div class="loading-game-icon">${icon}</div>
+            <div class="spinner"></div>
+            <div class="loading-text">加载 ${name}...</div>
+        `;
+        document.body.appendChild(overlay);
+
         if (document.readyState === 'complete') {
             setTimeout(function() {
-                hidePageLoading();
+                overlay.classList.add('hidden');
+                setTimeout(() => overlay.remove(), 500);
             }, 200);
         } else {
             window.addEventListener('load', function() {
                 setTimeout(function() {
-                    hidePageLoading();
+                    overlay.classList.add('hidden');
+                    setTimeout(() => overlay.remove(), 500);
                 }, 200);
             });
-            // 兜底：最多等 2 秒自动隐藏
             setTimeout(function() {
-                hidePageLoading();
+                overlay.classList.add('hidden');
+                setTimeout(() => overlay.remove(), 500);
             }, 2000);
         }
     };

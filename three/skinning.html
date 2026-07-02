@@ -53,12 +53,12 @@
     <!-- 骨骼动画模块（依赖 Three.js 导入映射） -->
     <script type="module">
         import * as THREE from 'three';
-        import { color, screenUV } from 'three/tsl';
+        import { color, screenUV, vec2, vec4, reflector, positionWorld } from 'three/tsl';
         import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
         // 将依赖注入到全局，供 skinning.js 中的 initSkinning 函数使用
         window.__SKINNING_DEPS__ = { THREE, GLTFLoader };
-        window.__TSL__ = { color, screenUV };
+        window.__TSL__ = { color, screenUV, vec2, vec4, reflector, positionWorld };
 
         // 动态加载 skinning.js（非模块脚本），加载完成后初始化
         var script = document.createElement('script');
@@ -76,9 +76,15 @@
                 fov: 50,
                 toneMappingExposure: 0.4,
                 lightPower: 2500,
-                ambientColor: 0x4466ff,
-                bgColorTop: 0x66bbff,
-                bgColorBottom: 0x4466ff
+                ambientColor: 0x311649,
+                bgColorTop: 0x13172b,
+                bgColorMid: 0x311649,
+                bgColorAccent: 0x0c5d68,
+                backLightColor: 0xffffff,
+                keyLightColor: 0xfff9ea,
+                keyLightIntensity: 4,
+                lightIntensity: 10,
+                floorOpacity: 0.2
             });
         };
         document.head.appendChild(script);

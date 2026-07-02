@@ -64,26 +64,16 @@
         var script = document.createElement('script');
         script.src = '../assets/js/three/skinning.js';
         script.onload = function () {
-            // 初始化骨骼动画模型 - 加载 Michelle.glb
+            // 初始化骨骼动画模型 - 加载 Michelle.glb（灯光和背景与 retargeting_readyplayer 一致）
             window.__skinningViewer = initSkinning('three-container', {
                 path: '../assets/models/gltf/Michelle.glb',
                 scale: 1,
                 autoPlay: true,
                 animationIndex: 0
             }, {
-                camPosY: 1.5,
-                camPosZ: 4,
-                fov: 50,
-                toneMappingExposure: 0.4,
-                lightPower: 2500,
-                ambientColor: 0x311649,
-                bgColorTop: 0x13172b,
-                bgColorMid: 0x311649,
-                bgColorAccent: 0x0c5d68,
-                backLightColor: 0xffffff,
-                keyLightColor: 0xfff9ea,
-                keyLightIntensity: 4,
-                lightIntensity: 10,
+                fov: 40,
+                camPosY: 3,
+                camPosZ: 5,
                 floorOpacity: 0.2
             });
         };

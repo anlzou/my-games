@@ -39,7 +39,6 @@
  * @param {number} [options.camPosY=1.5] - 相机初始 Y
  * @param {number} [options.camPosZ=4] - 相机初始 Z
  * @param {number} [options.fov=50] - 相机视野
- * @param {number} [options.toneMappingExposure=0.4] - 曝光度
  * @param {number} [options.bgColorTop=0x13172b] - TSL 渐变顶部颜色
  * @param {number} [options.bgColorMid=0x311649] - TSL 渐变中间颜色
  * @param {number} [options.bgColorAccent=0x0c5d68] - TSL 强调色
@@ -48,7 +47,6 @@
  * @param {number} [options.keyLightColor=0xfff9ea] - 主光颜色
  * @param {number} [options.keyLightIntensity=4] - 主光强度
  * @param {number} [options.lightIntensity=10] - 半球光强度
- * @param {number} [options.lightPower=2500] - 点光源功率（保留兼容）
  * @param {number} [options.floorOpacity=0.2] - 地板透明度
  * @param {Function} [options.onLoad] - 模型加载完成回调 (gltf, object) => {}
  * @param {Function} [options.onProgress] - 加载进度回调 (xhr) => {}
@@ -66,11 +64,9 @@ function initSkinning(containerId, modelConfig, options) {
     // 合并选项
     var opts = Object.assign({
         camPosX: 0,
-        camPosY: 1.5,
-        camPosZ: 4,
-        fov: 50,
-        toneMappingExposure: 0.4,
-        lightPower: 2500,
+        camPosY: 3,
+        camPosZ: 5,
+        fov: 40,
         ambientColor: 0x311649,
         bgColorTop: 0x13172b,
         bgColorMid: 0x311649,
@@ -119,7 +115,7 @@ function initSkinning(containerId, modelConfig, options) {
     var scene = new T.Scene();
 
     // TSL 渐变背景
-    if (tsl.screenUV && tsl.color && tsl.vec2 && scene.backgroundNode !== undefined) {
+    if (tsl.screenUV && tsl.color && tsl.vec2) {
         try {
             var horizontalEffect = tsl.screenUV.x.mix(tsl.color(opts.bgColorTop), tsl.color(opts.bgColorMid));
             var lightEffect = tsl.screenUV.distance(tsl.vec2(0.5, 1.0)).oneMinus().mul(tsl.color(opts.bgColorAccent));
@@ -143,15 +139,7 @@ function initSkinning(containerId, modelConfig, options) {
     // ----- 3. 时钟 -----
     var clock = new T.Clock();
 
-    // ----- 4. 光照 -----
-    var light = new T.PointLight(0xffffff, 1, 100);
-    light.power = opts.lightPower;
-    camera.add(light);
-    scene.add(camera);
-
-    var ambient = new T.AmbientLight(opts.ambientColor, 1);
-    scene.add(ambient);
-
+    // ----- 4. 光照（与 retargeting_readyplayer 一致） -----
     var hemiLight = new T.HemisphereLight(opts.ambientColor, opts.bgColorAccent, opts.lightIntensity);
     scene.add(hemiLight);
 
@@ -197,8 +185,7 @@ function initSkinning(containerId, modelConfig, options) {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(container.clientWidth, container.clientHeight);
     if (renderer.toneMapping !== undefined) {
-        renderer.toneMapping = T.LinearToneMapping;
-        renderer.toneMappingExposure = opts.toneMappingExposure;
+        renderer.toneMapping = T.NeutralToneMapping || T.LinearToneMapping;
     }
     container.appendChild(renderer.domElement);
 

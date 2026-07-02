@@ -587,6 +587,97 @@ body.game-page .container {
     .controls-hint { display: none; }
 }
 
+/* ========== 移动端横屏模式 ==========
+ * - 侧边栏默认收起为左侧窄条，点击 ☰ 按钮展开
+ * - 返回按钮隐藏
+ * - 桌面端游戏选择器隐藏
+ * - 菜单按钮显示在左上角
+ * - 3D 页面画布为 fixed 定位，不受影响
+ */
+@media (max-height: 500px) and (orientation: landscape) {
+    /* 隐藏不需要的元素 */
+    .back-btn {
+        display: none !important;
+    }
+    .game-selector {
+        display: none !important;
+    }
+    .help-btn {
+        display: none !important;
+    }
+
+    /* 隐藏标题，节省空间 */
+    .top-bar h1 {
+        display: none !important;
+    }
+    .top-bar {
+        display: block !important;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: auto;
+        height: auto;
+        background: none;
+        padding: 0;
+        margin: 0;
+        border: none;
+        z-index: 200;
+        pointer-events: auto;
+    }
+
+    /* 菜单按钮固定在左上角 */
+    .menu-btn {
+        display: block !important;
+        position: fixed;
+        top: 8px;
+        left: 8px;
+        z-index: 210;
+        color: #00d4ff;
+        background: rgba(15, 12, 41, 0.6);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border-radius: 12px;
+        padding: 6px 10px;
+        font-size: 1.5em;
+        border: 1px solid rgba(0, 212, 255, 0.25);
+        box-shadow: 0 0 15px rgba(0, 212, 255, 0.15);
+    }
+
+    /* ===== 侧边栏：默认收起，点击菜单按钮展开 ===== */
+    .sidebar-overlay {
+        display: none !important;
+    }
+    .sidebar {
+        transform: translateX(-100%);
+        width: 200px;
+        z-index: 200;
+        background: linear-gradient(180deg, rgba(26, 26, 62, 0.98) 0%, rgba(22, 33, 62, 0.98) 100%);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        transition: transform 0.25s ease;
+    }
+    .sidebar.open {
+        transform: translateX(0);
+    }
+    .sidebar-categories {
+        padding: 12px 10px 16px;
+    }
+    .sidebar-category {
+        margin-bottom: 6px;
+        border-radius: 10px;
+    }
+    .sidebar-cat-header {
+        padding: 10px 12px;
+    }
+    .sidebar-cat-header .cat-name {
+        font-size: 0.85em;
+    }
+    .sidebar-cat-item {
+        padding: 8px 10px;
+        font-size: 0.78em;
+    }
+}
+
 @media (max-width: 400px) {
     .container { padding: 6px; }
 }

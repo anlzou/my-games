@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>旋转立方体 - 3D模型</title>
     <link rel="stylesheet" href="../assets/css/common.css">
-    <link rel="stylesheet" href="../assets/css/three.css">
+    <link rel="stylesheet" href="../assets/css/three/three.css">
 </head>
 <body class="three-page">
     <div class="container">
@@ -24,25 +24,13 @@
     <script src="../assets/js/three/models.js"></script>
     <script src="../assets/js/three/cube.js"></script>
     <script>
-        // 生成模型选择器按钮
-        const modelSelector = document.getElementById('model-selector');
-        if (modelSelector) {
-            const models = [
-                { id: 'cube', name: '旋转立方体', icon: '📦' },
-                { id: 'sphere', name: '发光球体', icon: '🔮' },
-                { id: 'torus', name: '扭结环', icon: '🔄' },
-                { id: 'earth', name: '旋转地球', icon: '🌍' },
-            ];
-            models.forEach(m => {
-                const a = document.createElement('a');
-                a.href = `./${m.id}.html`;
-                a.className = 'three-model-btn' + (m.id === 'cube' ? ' active' : '');
-                a.textContent = `${m.icon} ${m.name}`;
-                modelSelector.appendChild(a);
-            });
-        }
+        // 使用 data-model-id 标识当前模型，initModelSelector() 会自动读取
+        document.body.dataset.modelId = 'cube';
+        // 初始化公共布局（侧边栏、顶部栏）
         initCommonLayout('three', 'models');
-        document.title = '旋转立方体 - 3D模型';
+        // 初始化模型导航选择器（集中管理，替代内联重复代码）
+        initModelSelector();
+        // 启动当前模型
         initCube();
     </script>
 </body>

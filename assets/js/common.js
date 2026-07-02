@@ -27,6 +27,7 @@ const gameNames = {
     pinball: '见缝插针',
     klotski: '华容道',
     puzzle: '滑块拼图',
+    rubik: '3D魔方',
 };
 const gameIcons = {
     sudoku: '🔢',
@@ -43,6 +44,7 @@ const gameIcons = {
     pinball: '🎯',
     klotski: '🏯',
     puzzle: '🧩',
+    rubik: '🧊',
 };
 const gameDescs = {
     sudoku: '逻辑填数',
@@ -59,6 +61,7 @@ const gameDescs = {
     pinball: '精准时机',
     klotski: '滑块解谜',
     puzzle: '拼图还原',
+    rubik: '3D魔方',
 };
 
 // 3D 模型数据
@@ -97,7 +100,7 @@ const threeModelDescs = {
 };
 
 // 游戏顺序列表
-const gameList = ['sudoku', 'snake', 'tetris', 'minesweeper', 'game2048', 'gomoku', 'breakout', 'memory', 'sokoban', 'whackamole', 'flappybird', 'pinball', 'klotski', 'puzzle'];
+const gameList = ['sudoku', 'snake', 'tetris', 'minesweeper', 'game2048', 'gomoku', 'breakout', 'memory', 'sokoban', 'whackamole', 'flappybird', 'pinball', 'klotski', 'puzzle', 'rubik'];
 // 3D 模型顺序列表
 const threeModelList = ['cube', 'sphere', 'torus', 'earth', 'skinning', 'gltf_avif', 'retargeting_readyplayer', 'convex_hull', 'terrain'];
 
@@ -723,6 +726,31 @@ const rulesData = {
         </ul>
         <h3>💡 技巧</h3>
         <p>可以点击"预览"按钮查看完整图案。从左上角开始逐行还原是最常用的策略。步数越少评级越高！按 P 键快速预览完整图片，N 键切换数字辅助显示。</p>
+    `,
+    rubik: `
+        <h3>🎯 游戏目标</h3>
+        <p>还原被打乱的魔方，使每个面都恢复为纯色！</p>
+        <h3>🎮 操作方式</h3>
+        <ul>
+            <li><b>点击面块</b> + 拖拽：旋转该层（点击某面块后沿方向拖拽）</li>
+            <li><b>拖拽空白处</b>：旋转视角从不同角度观察魔方</li>
+            <li><b>滚轮</b>：缩放视图</li>
+            <li>支持触屏操作，双指缩放</li>
+        </ul>
+        <h3>⚙️ 设置功能</h3>
+        <ul>
+            <li>点击右下角悬浮齿轮按钮 ⚙️ 打开设置弹窗</li>
+            <li><b>魔方阶数</b>：支持 2×2 / 3×3 / 4×4 / 5×5</li>
+            <li><b>动画速度</b>：慢速 / 正常 / 快速</li>
+        </ul>
+        <h3>🎯 操作方法</h3>
+        <ul>
+            <li>点击"打乱"按钮随机打乱魔方开始挑战</li>
+            <li>点击"重置"按钮恢复已还原的魔方</li>
+            <li>系统自动记录步数和用时</li>
+        </ul>
+        <h3>💡 技巧</h3>
+        <p>使用标准魔方还原方法（层先法、CFOP等）可以高效还原。从底层开始逐步还原，先还原一面再逐层推进！</p>
     `
 };
 

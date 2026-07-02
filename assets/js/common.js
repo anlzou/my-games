@@ -70,6 +70,8 @@ const threeModelNames = {
     skinning: '骨骼动画',
     gltf_avif: 'GLTF AVIF',
     retargeting_readyplayer: '动画重定向',
+    convex_hull: '凸包几何',
+    terrain: '程序化地形',
 };
 const threeModelIcons = {
     cube: '📦',
@@ -79,6 +81,8 @@ const threeModelIcons = {
     skinning: '🏃',
     gltf_avif: '🏠',
     retargeting_readyplayer: '🔄',
+    convex_hull: '💎',
+    terrain: '🏔️',
 };
 const threeModelDescs = {
     cube: '彩色立方体',
@@ -88,12 +92,14 @@ const threeModelDescs = {
     skinning: '蒙皮动画',
     gltf_avif: 'GLTF模型与AVIF纹理',
     retargeting_readyplayer: '动画重定向到ReadyPlayer.me',
+    convex_hull: '随机点云凸包计算',
+    terrain: 'Simplex噪声生成地形',
 };
 
 // 游戏顺序列表
 const gameList = ['sudoku', 'snake', 'tetris', 'minesweeper', 'game2048', 'gomoku', 'breakout', 'memory', 'sokoban', 'whackamole', 'flappybird', 'pinball', 'klotski', 'puzzle'];
 // 3D 模型顺序列表
-const threeModelList = ['cube', 'sphere', 'torus', 'earth', 'skinning', 'gltf_avif', 'retargeting_readyplayer'];
+const threeModelList = ['cube', 'sphere', 'torus', 'earth', 'skinning', 'gltf_avif', 'retargeting_readyplayer', 'convex_hull', 'terrain'];
 
 // 获取当前模块和页面ID
 function getCurrentModule() {

@@ -25,6 +25,8 @@ const threeModels = [
     { id: 'skinning', name: '骨骼动画',  desc: '蒙皮骨骼动画模型', icon: '🏃', file: 'skinning' },
     { id: 'gltf_avif', name: 'GLTF AVIF', desc: 'GLTF模型与AVIF纹理', icon: '🏠', file: 'gltf_avif' },
     { id: 'retargeting_readyplayer', name: '动画重定向', desc: 'Mixamo动画重定向到ReadyPlayer.me', icon: '🔄', file: 'retargeting_readyplayer' },
+    { id: 'convex_hull', name: '凸包几何', desc: '随机点云凸包计算', icon: '💎', file: 'convex_hull' },
+    { id: 'terrain', name: '程序化地形', desc: 'Simplex噪声生成地形', icon: '🏔️', file: 'terrain' },
 ];
 
 /**
